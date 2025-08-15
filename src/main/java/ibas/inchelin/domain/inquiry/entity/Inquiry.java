@@ -1,8 +1,9 @@
-package ibas.inchelin.domain.inquiry;
+package ibas.inchelin.domain.inquiry.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
 import ibas.inchelin.domain.Status;
-import ibas.inchelin.domain.user.User;
+import ibas.inchelin.domain.inquiry.InquiryType;
+import ibas.inchelin.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

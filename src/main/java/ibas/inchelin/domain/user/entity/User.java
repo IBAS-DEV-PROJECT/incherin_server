@@ -1,6 +1,7 @@
-package ibas.inchelin.domain.user;
+package ibas.inchelin.domain.user.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
+import ibas.inchelin.domain.user.Role;
 import jakarta.persistence.*;
 import lombok.*;
 

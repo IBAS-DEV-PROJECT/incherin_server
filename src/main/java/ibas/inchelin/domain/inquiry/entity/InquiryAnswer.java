@@ -1,4 +1,4 @@
-package ibas.inchelin.domain.user;
+package ibas.inchelin.domain.inquiry.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -9,12 +9,15 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BlackList extends BaseTimeEntity {
+public class InquiryAnswer extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;  // 차단된 사용자
+    @Lob
+    private String content;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inquiry_id", unique = true)
+    private Inquiry inquiry;
 }

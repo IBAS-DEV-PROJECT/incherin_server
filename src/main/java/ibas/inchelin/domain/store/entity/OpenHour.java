@@ -1,4 +1,4 @@
-package ibas.inchelin.domain.store;
+package ibas.inchelin.domain.store.entity;
 
 
 import ibas.inchelin.domain.BaseTimeEntity;

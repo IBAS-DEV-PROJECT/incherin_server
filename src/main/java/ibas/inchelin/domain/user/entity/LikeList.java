@@ -1,4 +1,4 @@
-package ibas.inchelin.domain.user;
+package ibas.inchelin.domain.user.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
 import jakarta.persistence.*;

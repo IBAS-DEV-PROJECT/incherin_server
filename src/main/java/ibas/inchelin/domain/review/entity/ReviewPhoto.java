@@ -1,4 +1,4 @@
-package ibas.inchelin.domain.inquiry;
+package ibas.inchelin.domain.review.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -7,17 +7,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "review_photo")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class InquiryAnswer extends BaseTimeEntity {
+public class ReviewPhoto extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Lob
-    private String content;
+    @Column(nullable = false)
+    private String imageUrl;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inquiry_id", unique = true)
-    private Inquiry inquiry;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id")
+    private Review review;
 }

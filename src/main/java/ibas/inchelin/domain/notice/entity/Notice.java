@@ -1,7 +1,8 @@
-package ibas.inchelin.domain.notice;
+package ibas.inchelin.domain.notice.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
-import ibas.inchelin.domain.user.User;
+import ibas.inchelin.domain.notice.NoticeType;
+import ibas.inchelin.domain.user.entity.User;
 import ibas.inchelin.domain.Visibility;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

@@ -1,8 +1,9 @@
-package ibas.inchelin.domain.review;
+package ibas.inchelin.domain.review.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
-import ibas.inchelin.domain.store.Store;
-import ibas.inchelin.domain.user.User;
+import ibas.inchelin.domain.review.VisitType;
+import ibas.inchelin.domain.store.entity.Store;
+import ibas.inchelin.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

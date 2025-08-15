@@ -1,28 +1,27 @@
-package ibas.inchelin.domain.review;
+package ibas.inchelin.domain.review.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
-import ibas.inchelin.domain.store.Menu;
+import ibas.inchelin.domain.review.Keyword;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "review_menu",
-        uniqueConstraints = @UniqueConstraint(name = "uk_reviewmenu_review_menu", columnNames = {"review_id", "menu_id"})
+@Table(name = "review_keyword",
+        uniqueConstraints = @UniqueConstraint(name = "uk_reviewkeyword_review_keyword", columnNames = {"review_id", "keyword"})
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ReviewMenu extends BaseTimeEntity {
+public class ReviewKeyword extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private Keyword keyword;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_id")
-    private Menu menu;
 }

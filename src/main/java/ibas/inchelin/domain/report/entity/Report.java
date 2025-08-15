@@ -1,8 +1,9 @@
-package ibas.inchelin.domain.report;
+package ibas.inchelin.domain.report.entity;
 
 
 import ibas.inchelin.domain.BaseTimeEntity;
-import ibas.inchelin.domain.review.Review;
+import ibas.inchelin.domain.report.ReportType;
+import ibas.inchelin.domain.review.entity.Review;
 import ibas.inchelin.domain.Status;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
