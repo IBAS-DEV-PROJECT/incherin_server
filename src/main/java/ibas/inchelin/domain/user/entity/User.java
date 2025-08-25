@@ -5,6 +5,8 @@ import ibas.inchelin.domain.user.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -20,7 +22,7 @@ public class User extends BaseTimeEntity {
     @Column
     private String password;
 
-    @Column(nullable = false)
+    @Column(unique = true)
     private String nickname;
 
     private String name;
@@ -31,4 +33,24 @@ public class User extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(unique = true, nullable = false)
+    private String sub;
+
+    @Builder
+    public User(String email, String name, Role role) {
+        this.email = email;
+        this.name = name;
+        this.role = role;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.sub == null) {
+            this.sub = UUID.randomUUID().toString();
+        }
+        if (this.nickname == null || this.nickname.isBlank()) {
+            this.nickname = "user" + UUID.randomUUID();
+        }
+    }
 }
