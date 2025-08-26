@@ -28,4 +28,19 @@ public class UserService {
         dto.setRole(user.getRole());
         return dto;
     }
+
+    public MyInfoResponse updateMyInfo(String nickname, String bio, String sub) {
+        User user = userRepository.findBySub(sub)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+        user.changeInfo(nickname, bio);
+        MyInfoResponse dto = new MyInfoResponse();
+        dto.setUserId(user.getId());
+        dto.setNickname(user.getNickname());
+        dto.setName(user.getName());
+        dto.setBio(user.getBio());
+        dto.setProfileImage(user.getProfileImage());
+        dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole());
+        return dto;
+    }
 }

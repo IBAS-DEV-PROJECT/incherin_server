@@ -53,4 +53,9 @@ public class User extends BaseTimeEntity {
             this.nickname = "user_" + UUID.randomUUID();
         }
     }
+
+    public void changeInfo(String nickname, String bio) {
+        this.nickname = nickname;
+        this.bio = bio;
+    }
 }

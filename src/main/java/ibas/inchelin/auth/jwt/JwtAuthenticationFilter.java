@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 토큰이 있지만 유효하지 않은 경우 (만료 포함)
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"error\":\"Token expired\",\"message\":\"Access token이 만료되었습니다. /auth/refresh 엔드포인트를 사용해 토큰을 갱신하세요.\"}");
+            response.getWriter().write("{\"error\":\"Token expired\",\"message\":\"Access token이 만료되었습니다.\"}");
             return;
         }
         filterChain.doFilter(request, response);
