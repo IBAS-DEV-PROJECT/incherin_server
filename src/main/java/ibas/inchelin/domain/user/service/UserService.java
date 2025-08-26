@@ -3,6 +3,7 @@ package ibas.inchelin.domain.user.service;
 import ibas.inchelin.domain.user.entity.User;
 import ibas.inchelin.domain.user.repository.UserRepository;
 import ibas.inchelin.web.dto.user.MyInfoResponse;
+import ibas.inchelin.web.dto.user.OtherUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,17 @@ public class UserService {
         dto.setProfileImage(user.getProfileImage());
         dto.setEmail(user.getEmail());
         dto.setRole(user.getRole());
+        return dto;
+    }
+
+    public OtherUserInfoResponse otherUserInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+        OtherUserInfoResponse dto = new OtherUserInfoResponse();
+        dto.setNickname(user.getNickname());
+        dto.setName(user.getName());
+        dto.setBio(user.getBio());
+        dto.setProfileImage(user.getProfileImage());
         return dto;
     }
 }
