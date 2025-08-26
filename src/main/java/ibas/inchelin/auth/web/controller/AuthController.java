@@ -1,6 +1,14 @@
-package ibas.inchelin.auth.controller;
+package ibas.inchelin.auth.web.controller;
 
 import ibas.inchelin.auth.jwt.JwtProvider;
+import ibas.inchelin.auth.web.dto.LoginInfoResponse;
+import ibas.inchelin.auth.web.dto.GoogleOAuthTokenRequest;
+import ibas.inchelin.auth.web.dto.GoogleOAuthTokenResponse;
+import ibas.inchelin.auth.web.dto.ApiErrorResponse;
+import ibas.inchelin.auth.web.dto.RefreshTokenRequest;
+import ibas.inchelin.auth.web.dto.RefreshTokenResponse;
+import ibas.inchelin.auth.web.dto.LogoutRequest;
+import ibas.inchelin.auth.web.dto.LogoutResponse;
 import ibas.inchelin.domain.user.Role;
 import ibas.inchelin.domain.user.entity.RefreshToken;
 import ibas.inchelin.domain.user.entity.User;
@@ -14,13 +22,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import lombok.RequiredArgsConstructor;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -38,48 +46,39 @@ public class AuthController {
     private String redirectUri;
 
     @GetMapping("/oauth2/google/url")
-    public ResponseEntity<Map<String, String>> loginInfo() {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "인증 정보입니다.");
-        // Google OAuth2 URL을 직접 생성
+    public ResponseEntity<LoginInfoResponse> loginInfo() {
         String googleOAuth2Url = String.format(
                 "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&scope=profile%%20email&response_type=code",
                 googleClientId, redirectUri
         );
-        response.put("googleOAuth2Url", googleOAuth2Url);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(LoginInfoResponse.builder()
+                .googleOAuth2Url(googleOAuth2Url)
+                .build());
     }
 
     @PostMapping("/oauth2/google/token")
-    public ResponseEntity<Map<String, String>> exchangeCodeForToken(@RequestBody Map<String, String> request) {
-        String code = request.get("code");
-
-        if (code == null || code.isEmpty()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Authorization code is required");
-            return ResponseEntity.status(400).body(error);
+    public ResponseEntity<?> exchangeCodeForToken(@RequestBody GoogleOAuthTokenRequest requestDto) {
+        String code = requestDto.getCode();
+        if (code == null || code.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiErrorResponse.builder()
+                            .error("INVALID_CODE")
+                            .message("Authorization code is required")
+                            .build());
         }
-
         try {
-            // URL 디코딩 처리
-            String decodedCode = java.net.URLDecoder.decode(code, "UTF-8");
-
-            // 1. Google API로 인가 코드를 액세스 토큰으로 교환
+            String decodedCode = java.net.URLDecoder.decode(code, StandardCharsets.UTF_8);
             String googleAccessToken = exchangeCodeForGoogleToken(decodedCode);
-
-            // 2. Google API로 사용자 정보 조회
             Map<String, Object> userInfo = getUserInfoFromGoogle(googleAccessToken);
-
             String email = (String) userInfo.get("email");
             String name = (String) userInfo.get("name");
-
             if (email == null) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Failed to get user email from Google");
-                return ResponseEntity.status(400).body(error);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiErrorResponse.builder()
+                                .error("EMAIL_NOT_FOUND")
+                                .message("Failed to get user email from Google")
+                                .build());
             }
-
-            // 3. 사용자 등록/조회
             Role role = Role.USER;
             Optional<User> userOpt = userRepository.findByEmail(email);
             User user = userOpt.orElseGet(() -> userRepository.save(User.builder()
@@ -87,19 +86,14 @@ public class AuthController {
                     .name(name)
                     .role(role)
                     .build()));
-
-            // 4. JWT 토큰 생성
             String accessToken = jwtProvider.createAccessToken(user.getSub(), user.getRole());
             String refreshToken = jwtProvider.createRefreshToken(user.getSub());
-
-            // 5. RefreshToken DB 저장
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime expiresAt = now.plusDays(7);
-
             refreshTokenRepository.findByUser(user)
                     .ifPresentOrElse(
                             rt -> {
-                                rt.renew(refreshToken, now, expiresAt); // 도메인 메서드로 갱신
+                                rt.renew(refreshToken, now, expiresAt);
                                 refreshTokenRepository.save(rt);
                             },
                             () -> refreshTokenRepository.save(RefreshToken.builder()
@@ -110,116 +104,114 @@ public class AuthController {
                                     .isActive(true)
                                     .build())
                     );
-
-            Map<String, String> response = new HashMap<>();
-            response.put("accessToken", accessToken);
-            response.put("refreshToken", refreshToken);
-            response.put("email", user.getEmail());
-            response.put("name", user.getName());
-            response.put("role", user.getRole().toString());
-
-            return ResponseEntity.ok(response);
-
+            return ResponseEntity.ok(GoogleOAuthTokenResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .role(user.getRole().toString())
+                    .build());
         } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "토큰 교환 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiErrorResponse.builder()
+                            .error("TOKEN_EXCHANGE_ERROR")
+                            .message("토큰 교환 중 오류: " + e.getMessage())
+                            .build());
         }
     }
 
     // access token 재발급
     @PostMapping("/token/refresh")
-    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
-
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest requestDto) {
+        String refreshToken = requestDto.getRefreshToken();
         if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Invalid refresh token");
-            return ResponseEntity.status(401).body(error);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiErrorResponse.builder()
+                            .error("INVALID_REFRESH_TOKEN")
+                            .message("Invalid refresh token")
+                            .build());
         }
-
         Optional<RefreshToken> refreshTokenEntity = refreshTokenRepository.findByRefreshToken(refreshToken);
         if (refreshTokenEntity.isEmpty()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Refresh token not found");
-            return ResponseEntity.status(401).body(error);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiErrorResponse.builder()
+                            .error("REFRESH_TOKEN_NOT_FOUND")
+                            .message("Refresh token not found")
+                            .build());
         }
-
         RefreshToken tokenEntity = refreshTokenEntity.get();
-
         if (!tokenEntity.getIsActive() || LocalDateTime.now().isAfter(tokenEntity.getExpiresAt())) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Refresh token expired or inactive");
-            return ResponseEntity.status(401).body(error);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiErrorResponse.builder()
+                            .error("REFRESH_TOKEN_EXPIRED")
+                            .message("Refresh token expired or inactive")
+                            .build());
         }
-
         User user = tokenEntity.getUser();
         if (user == null) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "User not found");
-            return ResponseEntity.status(401).body(error);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiErrorResponse.builder()
+                            .error("USER_NOT_FOUND")
+                            .message("User not found")
+                            .build());
         }
-
         String newAccessToken = jwtProvider.createAccessToken(user.getSub(), user.getRole());
-
-        Map<String, String> response = new HashMap<>();
-        response.put("accessToken", newAccessToken);
-        response.put("refreshToken", refreshToken);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(RefreshTokenResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(refreshToken)
+                .build());
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(@RequestBody(required = false) Map<String, String> request) {
-        String providedRefreshToken = request != null ? request.get("refreshToken") : null;
-        Map<String, String> response = new HashMap<>();
-
+    public ResponseEntity<?> logout(@RequestBody(required = false) LogoutRequest requestDto) {
+        String providedRefreshToken = requestDto != null ? requestDto.getRefreshToken() : null;
         if (providedRefreshToken != null && !providedRefreshToken.isBlank()) {
-            // 1) 명시적 refreshToken 기반 로그아웃
             Optional<RefreshToken> refreshTokenEntity = refreshTokenRepository.findByRefreshToken(providedRefreshToken);
             if (refreshTokenEntity.isEmpty()) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Refresh token not found");
-                return ResponseEntity.status(401).body(error);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(ApiErrorResponse.builder()
+                                .error("REFRESH_TOKEN_NOT_FOUND")
+                                .message("Refresh token not found")
+                                .build());
             }
             RefreshToken tokenEntity = refreshTokenEntity.get();
             if (tokenEntity.getIsActive()) {
                 tokenEntity.deactivate();
                 refreshTokenRepository.save(tokenEntity);
             }
-            response.put("message", "로그아웃 성공");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(LogoutResponse.builder().message("로그아웃 성공").build());
         } else {
-            // 2) refreshToken 미제공: 현재 인증(sub) 기반
             String sub = null;
             if (org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() != null) {
                 Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof String) {
-                    sub = (String) principal; // JwtAuthenticationFilter에서 sub를 principal로 저장
+                    sub = (String) principal;
                 }
             }
             if (sub == null) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "refreshToken 또는 유효한 Access Token 필요");
-                return ResponseEntity.status(400).body(error);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiErrorResponse.builder()
+                                .error("AUTH_REQUIRED")
+                                .message("refreshToken 또는 유효한 Access Token 필요")
+                                .build());
             }
             Optional<User> userOpt = userRepository.findBySub(sub);
             if (userOpt.isEmpty()) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "User not found");
-                return ResponseEntity.status(401).body(error);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(ApiErrorResponse.builder()
+                                .error("USER_NOT_FOUND")
+                                .message("User not found")
+                                .build());
             }
             User user = userOpt.get();
             Optional<RefreshToken> activeRtOpt = refreshTokenRepository.findByUserAndIsActive(user, true);
             if (activeRtOpt.isEmpty()) {
-                response.put("message", "활성 refresh token 없음");
-                return ResponseEntity.ok(response);
+                return ResponseEntity.ok(LogoutResponse.builder().message("활성 refresh token 없음").build());
             }
             RefreshToken activeRt = activeRtOpt.get();
             activeRt.deactivate();
             refreshTokenRepository.save(activeRt);
-            response.put("message", "로그아웃 성공");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(LogoutResponse.builder().message("로그아웃 성공").build());
         }
     }
 
