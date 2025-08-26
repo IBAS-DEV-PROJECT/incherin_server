@@ -27,8 +27,9 @@ public class RefreshToken extends BaseTimeEntity {
     @Column(nullable = false, length = 512, unique = true)
     private String refreshToken;
 
+    @Builder.Default
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime issuedAt = LocalDateTime.now();
 
     @Column(nullable = false)
     private LocalDateTime expiresAt;
@@ -37,10 +38,17 @@ public class RefreshToken extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean isActive = true;
 
+    @PrePersist
+    void onPersist() {
+        if (issuedAt == null) {
+            issuedAt = LocalDateTime.now();
+        }
+    }
+
     // 토큰 재발급/갱신 도메인 메서드
     public void renew(String newToken, LocalDateTime now, LocalDateTime newExpiresAt) {
         this.refreshToken = newToken;
-        this.createdAt = now;
+        this.issuedAt = now;
         this.expiresAt = newExpiresAt;
         this.isActive = true;
     }

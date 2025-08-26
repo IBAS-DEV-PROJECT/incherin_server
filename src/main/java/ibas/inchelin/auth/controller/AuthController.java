@@ -105,7 +105,7 @@ public class AuthController {
                             () -> refreshTokenRepository.save(RefreshToken.builder()
                                     .user(user)
                                     .refreshToken(refreshToken)
-                                    .createdAt(now)
+                                    .issuedAt(now)
                                     .expiresAt(expiresAt)
                                     .isActive(true)
                                     .build())

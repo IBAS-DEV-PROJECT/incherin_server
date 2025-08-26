@@ -50,7 +50,7 @@ public class User extends BaseTimeEntity {
             this.sub = UUID.randomUUID().toString();
         }
         if (this.nickname == null || this.nickname.isBlank()) {
-            this.nickname = "user" + UUID.randomUUID();
+            this.nickname = "user_" + UUID.randomUUID();
         }
     }
 }
