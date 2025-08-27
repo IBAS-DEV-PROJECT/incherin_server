@@ -12,4 +12,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     @EntityGraph(attributePaths = {"followUser"})
     List<Follow> findByUserId(Long userId);
+
+    Follow findByUserIdAndFollowUserId(Long userId, Long followUserId);
 }

@@ -46,8 +46,14 @@ public class UserController {
     @PostMapping("/{targetUserId}/follow")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> follow(Authentication authentication, @PathVariable Long targetUserId) {
-        String sub = authentication.getName();
-        userService.follow(sub, targetUserId);
+        userService.follow(authentication.getName(), targetUserId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{targetUserId}/follow")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> unfollow(Authentication authentication, @PathVariable Long targetUserId) {
+        userService.unfollow(authentication.getName(), targetUserId);
+        return ResponseEntity.noContent().build();
     }
 }

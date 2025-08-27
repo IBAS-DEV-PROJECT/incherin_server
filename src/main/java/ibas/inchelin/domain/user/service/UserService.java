@@ -64,4 +64,12 @@ public class UserService {
                 .followUser(userRepository.findById(targetUserId).orElseThrow())
                 .build());
     }
+
+    public void unfollow(String sub, Long targetUserId) {
+        Follow follow = followRepository.findByUserIdAndFollowUserId(
+                userRepository.findBySub(sub).orElseThrow().getId(),
+                targetUserId
+        );
+        followRepository.delete(follow);
+    }
 }
