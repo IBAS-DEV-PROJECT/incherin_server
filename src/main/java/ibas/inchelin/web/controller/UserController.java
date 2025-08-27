@@ -1,10 +1,7 @@
 package ibas.inchelin.web.controller;
 
 import ibas.inchelin.domain.user.service.UserService;
-import ibas.inchelin.web.dto.user.FollowerListResponse;
-import ibas.inchelin.web.dto.user.MyInfoResponse;
-import ibas.inchelin.web.dto.user.MyInfoUpdateRequest;
-import ibas.inchelin.web.dto.user.OtherUserInfoResponse;
+import ibas.inchelin.web.dto.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,5 +35,10 @@ public class UserController {
     @GetMapping("/{userId}/followers")
     public ResponseEntity<FollowerListResponse> getFollowers(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getFollowers(userId));
+    }
+
+    @GetMapping("/{userId}/following")
+    public ResponseEntity<FollowingListResponse> getFollowing(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getFollowing(userId));
     }
 }

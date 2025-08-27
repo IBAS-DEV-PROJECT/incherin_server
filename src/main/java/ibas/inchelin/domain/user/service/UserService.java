@@ -4,10 +4,7 @@ import ibas.inchelin.domain.user.entity.Follow;
 import ibas.inchelin.domain.user.entity.User;
 import ibas.inchelin.domain.user.repository.FollowRepository;
 import ibas.inchelin.domain.user.repository.UserRepository;
-import ibas.inchelin.web.dto.user.FollowerListResponse;
-import ibas.inchelin.web.dto.user.MyInfoResponse;
-import ibas.inchelin.web.dto.user.OtherUserInfoResponse;
-import ibas.inchelin.web.dto.user.UserNicknameResponse;
+import ibas.inchelin.web.dto.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,5 +47,14 @@ public class UserService {
                 .map(follow -> new UserNicknameResponse(follow.getUser().getId(), follow.getUser().getNickname()))
                 .toList();
         return new FollowerListResponse(followers.size(), followers);
+    }
+
+    @Transactional(readOnly = true)
+    public FollowingListResponse getFollowing(Long userId) {
+        List<Follow> followList = followRepository.findByUserId(userId);
+        List<UserNicknameResponse> followings = followList.stream()
+                .map(follow -> new UserNicknameResponse(follow.getFollowUser().getId(), follow.getFollowUser().getNickname()))
+                .toList();
+        return new FollowingListResponse(followings.size(), followings);
     }
 }

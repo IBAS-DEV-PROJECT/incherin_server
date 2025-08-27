@@ -9,4 +9,7 @@ import java.util.List;
 public interface FollowRepository extends JpaRepository<Follow, Long> {
     @EntityGraph(attributePaths = {"user"})
     List<Follow> findByFollowUserId(Long userId);
+
+    @EntityGraph(attributePaths = {"followUser"})
+    List<Follow> findByUserId(Long userId);
 }

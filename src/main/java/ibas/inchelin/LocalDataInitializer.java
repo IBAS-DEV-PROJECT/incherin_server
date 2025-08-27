@@ -28,6 +28,7 @@ public class LocalDataInitializer implements CommandLineRunner {
         initUser("test4@example.com", "테스터4");
         initFollow(2L, 1L);
         initFollow(3L, 1L);
+        initFollow(1L, 4L);
     }
 
     private void initUser(String email, String name) {
