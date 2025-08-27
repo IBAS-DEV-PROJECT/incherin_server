@@ -51,9 +51,7 @@ public class AuthController {
                 "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&scope=profile%%20email&response_type=code",
                 googleClientId, redirectUri
         );
-        return ResponseEntity.ok(LoginInfoResponse.builder()
-                .googleOAuth2Url(googleOAuth2Url)
-                .build());
+        return ResponseEntity.ok(new LoginInfoResponse(googleOAuth2Url));
     }
 
     @PostMapping("/oauth2/google/token")
@@ -61,10 +59,10 @@ public class AuthController {
         String code = requestDto.getCode();
         if (code == null || code.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiErrorResponse.builder()
-                            .error("INVALID_CODE")
-                            .message("Authorization code is required")
-                            .build());
+                    .body(new ApiErrorResponse(
+                            "INVALID_CODE",
+                            "Authorization code is required"
+                    ));
         }
         try {
             String decodedCode = java.net.URLDecoder.decode(code, StandardCharsets.UTF_8);
@@ -74,10 +72,10 @@ public class AuthController {
             String name = (String) userInfo.get("name");
             if (email == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(ApiErrorResponse.builder()
-                                .error("EMAIL_NOT_FOUND")
-                                .message("Failed to get user email from Google")
-                                .build());
+                        .body(new ApiErrorResponse(
+                                "EMAIL_NOT_FOUND",
+                                "Failed to get user email from Google"
+                        ));
             }
             Role role = Role.USER;
             Optional<User> userOpt = userRepository.findByEmail(email);
@@ -104,19 +102,19 @@ public class AuthController {
                                     .isActive(true)
                                     .build())
                     );
-            return ResponseEntity.ok(GoogleOAuthTokenResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .email(user.getEmail())
-                    .name(user.getName())
-                    .role(user.getRole().toString())
-                    .build());
+            return ResponseEntity.ok(new GoogleOAuthTokenResponse(
+                    accessToken,
+                    refreshToken,
+                    user.getEmail(),
+                    user.getName(),
+                    user.getRole().toString()
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiErrorResponse.builder()
-                            .error("TOKEN_EXCHANGE_ERROR")
-                            .message("토큰 교환 중 오류: " + e.getMessage())
-                            .build());
+                    .body(new ApiErrorResponse(
+                            "TOKEN_EXCHANGE_ERROR",
+                            "토큰 교환 중 오류: " + e.getMessage()
+                    ));
         }
     }
 
@@ -126,40 +124,37 @@ public class AuthController {
         String refreshToken = requestDto.getRefreshToken();
         if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiErrorResponse.builder()
-                            .error("INVALID_REFRESH_TOKEN")
-                            .message("Invalid refresh token")
-                            .build());
+                    .body(new ApiErrorResponse(
+                            "INVALID_REFRESH_TOKEN",
+                            "Invalid refresh token"
+                    ));
         }
         Optional<RefreshToken> refreshTokenEntity = refreshTokenRepository.findByRefreshToken(refreshToken);
         if (refreshTokenEntity.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiErrorResponse.builder()
-                            .error("REFRESH_TOKEN_NOT_FOUND")
-                            .message("Refresh token not found")
-                            .build());
+                    .body(new ApiErrorResponse(
+                            "REFRESH_TOKEN_NOT_FOUND",
+                            "Refresh token not found"
+                    ));
         }
         RefreshToken tokenEntity = refreshTokenEntity.get();
         if (!tokenEntity.getIsActive() || LocalDateTime.now().isAfter(tokenEntity.getExpiresAt())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiErrorResponse.builder()
-                            .error("REFRESH_TOKEN_EXPIRED")
-                            .message("Refresh token expired or inactive")
-                            .build());
+                    .body(new ApiErrorResponse(
+                            "REFRESH_TOKEN_EXPIRED",
+                            "Refresh token expired or inactive"
+                    ));
         }
         User user = tokenEntity.getUser();
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiErrorResponse.builder()
-                            .error("USER_NOT_FOUND")
-                            .message("User not found")
-                            .build());
+                    .body(new ApiErrorResponse(
+                            "USER_NOT_FOUND",
+                            "User not found"
+                    ));
         }
         String newAccessToken = jwtProvider.createAccessToken(user.getSub(), user.getRole());
-        return ResponseEntity.ok(RefreshTokenResponse.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(refreshToken)
-                .build());
+        return ResponseEntity.ok(new RefreshTokenResponse(newAccessToken, refreshToken));
     }
 
     @PostMapping("/logout")
@@ -169,17 +164,17 @@ public class AuthController {
             Optional<RefreshToken> refreshTokenEntity = refreshTokenRepository.findByRefreshToken(providedRefreshToken);
             if (refreshTokenEntity.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiErrorResponse.builder()
-                                .error("REFRESH_TOKEN_NOT_FOUND")
-                                .message("Refresh token not found")
-                                .build());
+                        .body(new ApiErrorResponse(
+                                "REFRESH_TOKEN_NOT_FOUND",
+                                "Refresh token not found"
+                        ));
             }
             RefreshToken tokenEntity = refreshTokenEntity.get();
             if (tokenEntity.getIsActive()) {
                 tokenEntity.deactivate();
                 refreshTokenRepository.save(tokenEntity);
             }
-            return ResponseEntity.ok(LogoutResponse.builder().message("로그아웃 성공").build());
+            return ResponseEntity.ok(new LogoutResponse("로그아웃 성공 (refresh token 사용)"));
         } else {
             String sub = null;
             if (org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() != null) {
@@ -190,28 +185,28 @@ public class AuthController {
             }
             if (sub == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(ApiErrorResponse.builder()
-                                .error("AUTH_REQUIRED")
-                                .message("refreshToken 또는 유효한 Access Token 필요")
-                                .build());
+                        .body(new ApiErrorResponse(
+                                "AUTH_REQUIRED",
+                                "refreshToken 또는 유효한 Access Token 필요"
+                        ));
             }
             Optional<User> userOpt = userRepository.findBySub(sub);
             if (userOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiErrorResponse.builder()
-                                .error("USER_NOT_FOUND")
-                                .message("User not found")
-                                .build());
+                        .body(new ApiErrorResponse(
+                                "USER_NOT_FOUND",
+                                "User not found"
+                        ));
             }
             User user = userOpt.get();
             Optional<RefreshToken> activeRtOpt = refreshTokenRepository.findByUserAndIsActive(user, true);
             if (activeRtOpt.isEmpty()) {
-                return ResponseEntity.ok(LogoutResponse.builder().message("활성 refresh token 없음").build());
+                return ResponseEntity.ok(new LogoutResponse("활성 refresh token 없음"));
             }
             RefreshToken activeRt = activeRtOpt.get();
             activeRt.deactivate();
             refreshTokenRepository.save(activeRt);
-            return ResponseEntity.ok(LogoutResponse.builder().message("로그아웃 성공").build());
+            return ResponseEntity.ok(new LogoutResponse("로그아웃 성공 (인증정보 사용)"));
         }
     }
 

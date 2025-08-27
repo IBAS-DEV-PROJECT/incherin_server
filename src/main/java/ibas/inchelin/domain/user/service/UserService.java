@@ -19,40 +19,19 @@ public class UserService {
     public MyInfoResponse getMyInfo(String sub) {
         User user = userRepository.findBySub(sub)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
-        MyInfoResponse dto = new MyInfoResponse();
-        dto.setUserId(user.getId());
-        dto.setNickname(user.getNickname());
-        dto.setName(user.getName());
-        dto.setBio(user.getBio());
-        dto.setProfileImage(user.getProfileImage());
-        dto.setEmail(user.getEmail());
-        dto.setRole(user.getRole());
-        return dto;
+        return new MyInfoResponse(user.getId(), user.getNickname(), user.getName(), user.getBio(), user.getProfileImage(), user.getEmail(), user.getRole());
     }
 
     public MyInfoResponse updateMyInfo(String nickname, String bio, String sub) {
         User user = userRepository.findBySub(sub)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
         user.changeInfo(nickname, bio);
-        MyInfoResponse dto = new MyInfoResponse();
-        dto.setUserId(user.getId());
-        dto.setNickname(user.getNickname());
-        dto.setName(user.getName());
-        dto.setBio(user.getBio());
-        dto.setProfileImage(user.getProfileImage());
-        dto.setEmail(user.getEmail());
-        dto.setRole(user.getRole());
-        return dto;
+        return new MyInfoResponse(user.getId(), user.getNickname(), user.getName(), user.getBio(), user.getProfileImage(), user.getEmail(), user.getRole());
     }
 
     public OtherUserInfoResponse otherUserInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
-        OtherUserInfoResponse dto = new OtherUserInfoResponse();
-        dto.setNickname(user.getNickname());
-        dto.setName(user.getName());
-        dto.setBio(user.getBio());
-        dto.setProfileImage(user.getProfileImage());
-        return dto;
+        return new OtherUserInfoResponse(user.getNickname(), user.getName(), user.getBio(), user.getProfileImage());
     }
 }
