@@ -57,4 +57,11 @@ public class UserService {
                 .toList();
         return new FollowingListResponse(followings.size(), followings);
     }
+
+    public void follow(String sub, Long targetUserId) {
+        followRepository.save(Follow.builder()
+                .user(userRepository.findBySub(sub).orElseThrow())
+                .followUser(userRepository.findById(targetUserId).orElseThrow())
+                .build());
+    }
 }

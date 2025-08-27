@@ -3,6 +3,7 @@ package ibas.inchelin.web.controller;
 import ibas.inchelin.domain.user.service.UserService;
 import ibas.inchelin.web.dto.user.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -40,5 +41,13 @@ public class UserController {
     @GetMapping("/{userId}/following")
     public ResponseEntity<FollowingListResponse> getFollowing(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getFollowing(userId));
+    }
+
+    @PostMapping("/{targetUserId}/follow")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> follow(Authentication authentication, @PathVariable Long targetUserId) {
+        String sub = authentication.getName();
+        userService.follow(sub, targetUserId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
