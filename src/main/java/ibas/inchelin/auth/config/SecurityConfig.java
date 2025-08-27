@@ -33,7 +33,8 @@ public class SecurityConfig {
 
     // HTTP GET 전용 공개 엔드포인트 목록
     private static final String[] PUBLIC_GET_ENDPOINTS = {
-            "/api/users/{userId:\\d+}"
+            "/api/users/{userId:\\d+}",
+            "/api/users/{userId:\\d+}/followers"
     };
 
     @Bean

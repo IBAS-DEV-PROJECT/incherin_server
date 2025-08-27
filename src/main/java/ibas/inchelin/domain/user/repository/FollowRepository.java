@@ -1,8 +1,12 @@
 package ibas.inchelin.domain.user.repository;
 
 import ibas.inchelin.domain.user.entity.Follow;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface FollowRepository extends JpaRepository<Follow, Long> {
-}
+import java.util.List;
 
+public interface FollowRepository extends JpaRepository<Follow, Long> {
+    @EntityGraph(attributePaths = {"user"})
+    List<Follow> findByFollowUserId(Long userId);
+}

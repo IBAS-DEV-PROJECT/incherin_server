@@ -1,6 +1,7 @@
 package ibas.inchelin.web.controller;
 
 import ibas.inchelin.domain.user.service.UserService;
+import ibas.inchelin.web.dto.user.FollowerListResponse;
 import ibas.inchelin.web.dto.user.MyInfoResponse;
 import ibas.inchelin.web.dto.user.MyInfoUpdateRequest;
 import ibas.inchelin.web.dto.user.OtherUserInfoResponse;
@@ -32,5 +33,10 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<OtherUserInfoResponse> getOtherUserInfo(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.otherUserInfo(userId));
+    }
+
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<FollowerListResponse> getFollowers(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getFollowers(userId));
     }
 }

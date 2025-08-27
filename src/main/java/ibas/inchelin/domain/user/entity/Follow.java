@@ -3,6 +3,7 @@ package ibas.inchelin.domain.user.entity;
 import ibas.inchelin.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,4 +27,10 @@ public class Follow extends BaseTimeEntity {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "followee_id")
     private User followUser;
+
+    @Builder
+    public Follow(User user, User followUser) {
+        this.user = user;
+        this.followUser = followUser;
+    }
 }

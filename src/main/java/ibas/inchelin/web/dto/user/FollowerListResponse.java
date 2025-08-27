@@ -1,11 +1,8 @@
 package ibas.inchelin.web.dto.user;
 
-import lombok.Data;
-
 import java.util.List;
 
-@Data
-public class FollowerListResponse {
-    private int totalCount;
-    private List<UserNicknameResponse> followers;
-}
+public record FollowerListResponse(
+        int totalCount,
+        List<UserNicknameResponse> followers
+) {}
