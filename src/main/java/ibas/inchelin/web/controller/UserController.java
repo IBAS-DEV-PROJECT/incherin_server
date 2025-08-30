@@ -1,6 +1,7 @@
 package ibas.inchelin.web.controller;
 
 import ibas.inchelin.domain.user.service.UserService;
+import ibas.inchelin.web.dto.review.ReviewListResponse;
 import ibas.inchelin.web.dto.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -56,4 +57,11 @@ public class UserController {
         userService.unfollow(authentication.getName(), targetUserId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/me/reviews")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ReviewListResponse> getMyReviews(Authentication authentication, @RequestParam(required = false, defaultValue = "latest") String sort) {
+        return ResponseEntity.ok(userService.getMyReviews(authentication.getName(), sort));
+    }
+
 }

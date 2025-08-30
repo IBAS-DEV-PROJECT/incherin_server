@@ -1,5 +1,18 @@
 package ibas.inchelin;
 
+import ibas.inchelin.domain.review.Keyword;
+import ibas.inchelin.domain.review.entity.Review;
+import ibas.inchelin.domain.review.entity.ReviewKeyword;
+import ibas.inchelin.domain.review.entity.ReviewMenu;
+import ibas.inchelin.domain.review.entity.ReviewPhoto;
+import ibas.inchelin.domain.review.repository.ReviewKeywordRepository;
+import ibas.inchelin.domain.review.repository.ReviewMenuRepository;
+import ibas.inchelin.domain.review.repository.ReviewPhotoRepository;
+import ibas.inchelin.domain.review.repository.ReviewRepository;
+import ibas.inchelin.domain.store.entity.Menu;
+import ibas.inchelin.domain.store.entity.Store;
+import ibas.inchelin.domain.store.repository.MenuRepository;
+import ibas.inchelin.domain.store.repository.StoreRepository;
 import ibas.inchelin.domain.user.Role;
 import ibas.inchelin.domain.user.entity.Follow;
 import ibas.inchelin.domain.user.entity.User;
@@ -11,6 +24,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Component
 @Profile("local")
 @RequiredArgsConstructor
@@ -18,6 +32,13 @@ public class LocalDataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final StoreRepository storeRepository;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMenuRepository reviewMenuRepository;
+    private final MenuRepository menuRepository;
+    private final ReviewPhotoRepository reviewPhotoRepository;
+    private final ReviewKeywordRepository reviewKeywordRepository;
+    private final UserRepository UserRepository;
 
     @Override
     @Transactional
@@ -29,6 +50,11 @@ public class LocalDataInitializer implements CommandLineRunner {
         initFollow(2L, 1L);
         initFollow(3L, 1L);
         initFollow(1L, 4L);
+        initStore();
+        initReview();
+        initReviewMenu();
+        initReviewPhoto();
+        initReviewKeyword();
     }
 
     private void initUser(String email, String name) {
@@ -46,5 +72,38 @@ public class LocalDataInitializer implements CommandLineRunner {
                 .user(userRepository.findById(userId).orElseThrow())
                 .followUser(userRepository.findById(FollowUserID).orElseThrow())
                 .build());
+    }
+
+    private void initStore() {
+        storeRepository.save(Store.builder().storeName("store1").build());
+    }
+
+    private void initReview() {
+        reviewRepository.save(Review.builder()
+                .rating(4.0)
+                .content("리뷰1")
+                .store(storeRepository.findById(1L).orElseThrow())
+                .writtenBy(userRepository.findById(1L).orElseThrow())
+                .build());
+    }
+
+    private void initReviewMenu() {
+        Menu menu = Menu.builder().name("메뉴1").price(1000).build();
+        menuRepository.save(menu);
+        reviewMenuRepository.save(ReviewMenu.builder()
+                .review(reviewRepository.findById(1L).orElseThrow())
+                .menu(menu).build());
+    }
+
+    private void initReviewPhoto() {
+        reviewPhotoRepository.save(ReviewPhoto.builder()
+                .imageUrl("https://example.com/photo1.jpg")
+                .review(reviewRepository.findById(1L).orElseThrow()).build());
+    }
+
+    private void initReviewKeyword() {
+        reviewKeywordRepository.save(ReviewKeyword.builder()
+                .keyword(Keyword.DELICIOUS)
+                .review(reviewRepository.findById(1L).orElseThrow()).build());
     }
 }

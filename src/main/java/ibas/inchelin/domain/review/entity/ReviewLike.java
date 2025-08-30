@@ -4,6 +4,7 @@ import ibas.inchelin.domain.BaseTimeEntity;
 import ibas.inchelin.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,10 @@ public class ReviewLike extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder
+    public ReviewLike(Review review, User user) {
+        this.review = review;
+        this.user = user;
+    }
 }

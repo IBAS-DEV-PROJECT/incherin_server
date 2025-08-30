@@ -4,6 +4,7 @@ import ibas.inchelin.domain.BaseTimeEntity;
 import ibas.inchelin.domain.review.Keyword;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,4 +25,10 @@ public class ReviewKeyword extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
+
+    @Builder
+    public ReviewKeyword(Keyword keyword, Review review) {
+        this.keyword = keyword;
+        this.review = review;
+    }
 }

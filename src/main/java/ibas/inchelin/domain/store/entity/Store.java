@@ -4,6 +4,7 @@ import ibas.inchelin.domain.BaseTimeEntity;
 import ibas.inchelin.domain.store.Category;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,4 +39,9 @@ public class Store extends BaseTimeEntity {
     private String additionalInfo;
 
     private String aiSummary;
+
+    @Builder
+    public Store(String storeName) {
+        this.storeName = storeName;
+    }
 }

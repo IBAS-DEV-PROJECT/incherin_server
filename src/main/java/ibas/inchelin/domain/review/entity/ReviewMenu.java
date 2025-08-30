@@ -4,6 +4,7 @@ import ibas.inchelin.domain.BaseTimeEntity;
 import ibas.inchelin.domain.store.entity.Menu;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,10 @@ public class ReviewMenu extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
     private Menu menu;
+
+    @Builder
+    public ReviewMenu(Review review, Menu menu) {
+        this.review = review;
+        this.menu = menu;
+    }
 }

@@ -35,7 +35,8 @@ public class SecurityConfig {
     private static final String[] PUBLIC_GET_ENDPOINTS = {
             "/api/users/{userId:\\d+}",
             "/api/users/{userId:\\d+}/followers",
-            "/api/users/{userId:\\d+}/following"
+            "/api/users/{userId:\\d+}/following",
+            "/api/users/me/reviews" // 추가
     };
 
     @Bean

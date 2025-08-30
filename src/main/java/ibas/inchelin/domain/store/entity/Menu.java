@@ -3,6 +3,7 @@ package ibas.inchelin.domain.store.entity;
 import ibas.inchelin.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,11 +23,17 @@ public class Menu extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    private BigDecimal price;
+    private int price;
 
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Store store;
+
+    @Builder
+    public Menu(String name, int price) {
+        this.name = name;
+        this.price = price;
+    }
 }

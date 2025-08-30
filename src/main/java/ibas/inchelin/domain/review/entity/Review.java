@@ -6,6 +6,7 @@ import ibas.inchelin.domain.store.entity.Store;
 import ibas.inchelin.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +19,7 @@ public class Review extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer rating;
+    private Double rating;
 
     @Lob
     private String content;
@@ -33,4 +34,12 @@ public class Review extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "written_by")
     private User writtenBy;
+
+    @Builder
+    public Review(Double rating, String content, Store store, User writtenBy) {
+        this.rating = rating;
+        this.content = content;
+        this.store = store;
+        this.writtenBy = writtenBy;
+    }
 }
