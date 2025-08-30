@@ -64,4 +64,9 @@ public class UserController {
         return ResponseEntity.ok(userService.getMyReviews(authentication.getName(), sort));
     }
 
+    @GetMapping("/me/lists")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<MyListResponse> getMyLists(Authentication authentication) {
+        return ResponseEntity.ok(userService.getMyLists(authentication.getName()));
+    }
 }

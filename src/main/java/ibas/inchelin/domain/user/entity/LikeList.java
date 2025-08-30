@@ -3,6 +3,7 @@ package ibas.inchelin.domain.user.entity;
 import ibas.inchelin.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,4 +24,10 @@ public class LikeList extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder
+    public LikeList(String name, User user) {
+        this.name = name;
+        this.user = user;
+    }
 }

@@ -1,13 +1,13 @@
 package ibas.inchelin.domain.user.service;
 
 import ibas.inchelin.domain.review.entity.Review;
-import ibas.inchelin.domain.review.entity.ReviewKeyword;
-import ibas.inchelin.domain.review.entity.ReviewMenu;
 import ibas.inchelin.domain.review.entity.ReviewPhoto;
 import ibas.inchelin.domain.review.repository.*;
 import ibas.inchelin.domain.user.entity.Follow;
+import ibas.inchelin.domain.user.entity.LikeList;
 import ibas.inchelin.domain.user.entity.User;
 import ibas.inchelin.domain.user.repository.FollowRepository;
+import ibas.inchelin.domain.user.repository.LikeListRepository;
 import ibas.inchelin.domain.user.repository.UserRepository;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
 import ibas.inchelin.web.dto.review.ReviewResponse;
@@ -32,6 +32,7 @@ public class UserService {
     private final ReviewPhotoRepository reviewPhotoRepository;
     private final ReviewKeywordRepository reviewKeywordRepository;
     private final ReviewMenuRepository reviewMenuRepository;
+    private final LikeListRepository likeListRepository;
 
     @Transactional(readOnly = true)
     public MyInfoResponse getMyInfo(String sub) {
@@ -113,5 +114,12 @@ public class UserService {
                         false))
                 .toList();
         return new ReviewListResponse(reviewList);
+    }
+
+    public MyListResponse getMyLists(String sub) {
+        User user = userRepository.findBySub(sub).orElseThrow();
+        List<LikeList> likeLists = likeListRepository.findByUserId(user.getId());
+        List<MyListResponse.ListNameResponse> myLists = likeLists.stream().map(ll -> new MyListResponse.ListNameResponse(ll.getId(), ll.getName())).toList();
+        return new MyListResponse(myLists);
     }
 }
