@@ -69,4 +69,11 @@ public class UserController {
     public ResponseEntity<MyListResponse> getMyLists(Authentication authentication) {
         return ResponseEntity.ok(userService.getMyLists(authentication.getName()));
     }
+
+    @PostMapping("/me/lists")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> addMyLists(Authentication authentication, @RequestBody MyListAddRequest request) {
+        userService.addMyLists(authentication.getName(), request.getListName());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }

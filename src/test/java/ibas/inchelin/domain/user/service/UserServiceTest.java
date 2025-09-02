@@ -20,6 +20,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -30,7 +32,7 @@ class UserServiceTest {
     @InjectMocks private UserService userService;
 
     @Test
-    @DisplayName("getMyLists 성공 케이스")
+    @DisplayName("getMyLists 성공")
     void getMyLists_success() {
         // given
         String sub = "sub-123";
@@ -62,5 +64,27 @@ class UserServiceTest {
         assertThat(response.lists().get(1).listId()).isEqualTo(11L);
         assertThat(response.lists().get(1).listName()).isEqualTo("디저트 맛집 리스트");
     }
-}
 
+    @Test
+    @DisplayName("addMyList 성공")
+    void addMyLists_success() {
+        // given
+        String sub = "sub-123";
+        String listName = "새로운 맛집 리스트";
+        User user = User.builder()
+                .email("test@example.com")
+                .name("Tester")
+                .role(Role.USER)
+                .build();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(user, "sub", sub);
+
+        given(userRepository.findBySub(sub)).willReturn(Optional.of(user));
+
+        // when
+        userService.addMyLists(sub, listName);
+
+        // then
+        verify(likeListRepository).save(any(LikeList.class));
+    }
+}

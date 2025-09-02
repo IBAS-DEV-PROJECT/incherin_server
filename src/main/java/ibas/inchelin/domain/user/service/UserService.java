@@ -116,10 +116,18 @@ public class UserService {
         return new ReviewListResponse(reviewList);
     }
 
+    @Transactional(readOnly = true)
     public MyListResponse getMyLists(String sub) {
         User user = userRepository.findBySub(sub).orElseThrow();
         List<LikeList> likeLists = likeListRepository.findByUserId(user.getId());
         List<MyListResponse.ListNameResponse> myLists = likeLists.stream().map(ll -> new MyListResponse.ListNameResponse(ll.getId(), ll.getName())).toList();
         return new MyListResponse(myLists);
+    }
+
+    public void addMyLists(String sub, String listName) {
+        likeListRepository.save(LikeList.builder()
+                .name(listName)
+                .user(userRepository.findBySub(sub).orElseThrow())
+                .build());
     }
 }

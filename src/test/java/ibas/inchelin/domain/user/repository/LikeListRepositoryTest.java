@@ -15,7 +15,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@DisplayName("LikeListRepository 슬라이스 테스트")
 class LikeListRepositoryTest {
 
     @Autowired
@@ -103,6 +102,29 @@ class LikeListRepositoryTest {
 
         // Then: 빈 리스트가 반환되어야 함
         assertThat(likeLists).isEmpty();
+    }
+
+    @Test
+    @DisplayName("좋아요 리스트 저장 - 성공")
+    void save_LikeList_Success() {
+        // Given: 새로운 좋아요 리스트 생성
+        LikeList newLikeList = createLikeList("새로운 맛집 리스트", user1);
+
+        // When: 좋아요 리스트 저장
+        LikeList savedLikeList = likeListRepository.save(newLikeList);
+
+        // Then: 저장이 성공적으로 되어야 함
+        assertThat(savedLikeList).isNotNull();
+        assertThat(savedLikeList.getId()).isNotNull();
+        assertThat(savedLikeList.getName()).isEqualTo("새로운 맛집 리스트");
+        assertThat(savedLikeList.getUser().getId()).isEqualTo(user1.getId());
+
+        // And: 데이터베이스에서 조회했을 때도 존재해야 함
+        List<LikeList> user1LikeLists = likeListRepository.findByUserId(user1.getId());
+        assertThat(user1LikeLists).hasSize(3); // 기존 2개 + 새로 추가된 1개
+        assertThat(user1LikeLists)
+                .extracting(LikeList::getName)
+                .contains("새로운 맛집 리스트");
     }
 
     private LikeList createLikeList(String name, User user) {
