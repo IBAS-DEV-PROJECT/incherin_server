@@ -75,7 +75,7 @@ class LikeListRepositoryTest {
     }
 
     @Test
-    @DisplayName("사용자 ID로 좋아요 리스트 조회 - 다른 사용자")
+    @DisplayName("사용자 ID로 좋아요 리스트 조회2 - 성공")
     void findByUserId_DifferentUser() {
         // When: user2의 좋아요 리스트들을 조회
         List<LikeList> user2LikeLists = likeListRepository.findByUserId(user2.getId());

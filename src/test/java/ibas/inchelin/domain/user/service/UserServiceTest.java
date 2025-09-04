@@ -1,10 +1,13 @@
 package ibas.inchelin.domain.user.service;
 
+import ibas.inchelin.domain.store.entity.Store;
 import ibas.inchelin.domain.user.Role;
 import ibas.inchelin.domain.user.entity.LikeList;
+import ibas.inchelin.domain.user.entity.LikeListStore;
 import ibas.inchelin.domain.user.entity.User;
 import ibas.inchelin.domain.user.repository.*;
 import ibas.inchelin.domain.review.repository.*;
+import ibas.inchelin.web.dto.user.MyListItemListResponse;
 import ibas.inchelin.web.dto.user.MyListResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,10 +30,15 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private LikeListRepository likeListRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private LikeListRepository likeListRepository;
+    @Mock
+    private LikeListStoreRepository likeListStoreRepository;
 
-    @InjectMocks private UserService userService;
+    @InjectMocks
+    private UserService userService;
 
     private User user;
     private final String sub = "sub-123";
@@ -79,7 +87,7 @@ class UserServiceTest {
         given(userRepository.findBySub(sub)).willReturn(Optional.of(user));
 
         // when
-        userService.addMyLists(sub, listName);
+        userService.addMyList(sub, listName);
 
         // then
         verify(likeListRepository).save(any(LikeList.class));
@@ -98,9 +106,49 @@ class UserServiceTest {
         given(likeListRepository.findById(listId)).willReturn(Optional.of(likeList));
 
         // when
-        userService.deleteMyLists(sub, listId);
+        userService.deleteMyList(sub, listId);
 
         // then
         verify(likeListRepository).delete(likeList);
+    }
+
+    @Test
+    @DisplayName("리스트에 가게 조회 - 성공")
+    void getMyListItems_success() {
+        // given
+        Long listId = 10L;
+
+        Store store1 = mock(Store.class);
+        Store store2 = mock(Store.class);
+        given(store1.getId()).willReturn(100L);
+        given(store1.getStoreName()).willReturn("맛집1");
+        given(store2.getId()).willReturn(101L);
+        given(store2.getStoreName()).willReturn("맛집2");
+
+        LikeListStore likeListStore1 = mock(LikeListStore.class);
+        LikeListStore likeListStore2 = mock(LikeListStore.class);
+        given(likeListStore1.getId()).willReturn(1L);
+        given(likeListStore1.getStore()).willReturn(store1);
+        given(likeListStore2.getId()).willReturn(2L);
+        given(likeListStore2.getStore()).willReturn(store2);
+
+        LikeList likeList = mock(LikeList.class);
+        given(likeList.getUser()).willReturn(user);
+
+        given(likeListRepository.findById(listId)).willReturn(Optional.of(likeList));
+        given(userRepository.findBySub(sub)).willReturn(Optional.of(user));
+        given(likeListStoreRepository.findByLikeListId(listId)).willReturn(List.of(likeListStore1, likeListStore2));
+
+        // when
+        MyListItemListResponse response = userService.getMyListItems(sub, listId);
+
+        // then
+        assertThat(response.items()).hasSize(2);
+        assertThat(response.items().get(0).itemId()).isEqualTo(1L);
+        assertThat(response.items().get(0).storeId()).isEqualTo(100L);
+        assertThat(response.items().get(0).storeName()).isEqualTo("맛집1");
+        assertThat(response.items().get(1).itemId()).isEqualTo(2L);
+        assertThat(response.items().get(1).storeId()).isEqualTo(101L);
+        assertThat(response.items().get(1).storeName()).isEqualTo("맛집2");
     }
 }

@@ -5,9 +5,11 @@ import ibas.inchelin.domain.review.entity.ReviewPhoto;
 import ibas.inchelin.domain.review.repository.*;
 import ibas.inchelin.domain.user.entity.Follow;
 import ibas.inchelin.domain.user.entity.LikeList;
+import ibas.inchelin.domain.user.entity.LikeListStore;
 import ibas.inchelin.domain.user.entity.User;
 import ibas.inchelin.domain.user.repository.FollowRepository;
 import ibas.inchelin.domain.user.repository.LikeListRepository;
+import ibas.inchelin.domain.user.repository.LikeListStoreRepository;
 import ibas.inchelin.domain.user.repository.UserRepository;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
 import ibas.inchelin.web.dto.review.ReviewResponse;
@@ -17,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -33,6 +34,7 @@ public class UserService {
     private final ReviewKeywordRepository reviewKeywordRepository;
     private final ReviewMenuRepository reviewMenuRepository;
     private final LikeListRepository likeListRepository;
+    private final LikeListStoreRepository likeListStoreRepository;
 
     @Transactional(readOnly = true)
     public MyInfoResponse getMyInfo(String sub) {
@@ -124,19 +126,36 @@ public class UserService {
         return new MyListResponse(myLists);
     }
 
-    public void addMyLists(String sub, String listName) {
+    public void addMyList(String sub, String listName) {
         likeListRepository.save(LikeList.builder()
                 .name(listName)
                 .user(userRepository.findBySub(sub).orElseThrow())
                 .build());
     }
 
-    public void deleteMyLists(String sub, Long listId) {
+    public void deleteMyList(String sub, Long listId) {
         LikeList likeList = likeListRepository.findById(listId).orElseThrow();
         User user = userRepository.findBySub(sub).orElseThrow();
         if (!likeList.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("본인의 리스트만 삭제할 수 있습니다.");
         }
         likeListRepository.delete(likeList);
+    }
+
+    @Transactional(readOnly = true)
+    public MyListItemListResponse getMyListItems(String sub, Long listId) {
+        LikeList likeList = likeListRepository.findById(listId).orElseThrow();
+        User user = userRepository.findBySub(sub).orElseThrow();
+        if (!likeList.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("본인의 리스트에서만 조회할 수 있습니다.");
+        }
+        List<LikeListStore> likeListStores = likeListStoreRepository.findByLikeListId(listId);
+        List<MyListItemListResponse.MyListItemResponse> stores = likeListStores.stream()
+                .map(lls -> new MyListItemListResponse.MyListItemResponse(
+                        lls.getId(),
+                        lls.getStore().getId(),
+                        lls.getStore().getStoreName()
+                )).toList();
+        return new MyListItemListResponse(stores);
     }
 }

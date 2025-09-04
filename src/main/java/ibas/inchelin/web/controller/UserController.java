@@ -4,6 +4,7 @@ import ibas.inchelin.domain.user.service.UserService;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
 import ibas.inchelin.web.dto.user.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -72,15 +73,21 @@ public class UserController {
 
     @PostMapping("/me/lists")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> addMyLists(Authentication authentication, @RequestBody MyListAddRequest request) {
-        userService.addMyLists(authentication.getName(), request.getListName());
+    public ResponseEntity<Void> addMyList(Authentication authentication, @RequestBody MyListAddRequest request) {
+        userService.addMyList(authentication.getName(), request.getListName());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/me/lists/{listId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteMyLists(Authentication authentication, @PathVariable Long listId) {
-        userService.deleteMyLists(authentication.getName(), listId);
+    public ResponseEntity<Void> deleteMyList(Authentication authentication, @PathVariable Long listId) {
+        userService.deleteMyList(authentication.getName(), listId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me/lists/{listId}/items")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<MyListItemListResponse> getMyListItemList(Authentication authentication, @PathVariable Long listId) {
+        return ResponseEntity.ok(userService.getMyListItems(authentication.getName(), listId));
     }
 }
