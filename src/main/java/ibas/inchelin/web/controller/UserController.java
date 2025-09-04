@@ -76,4 +76,11 @@ public class UserController {
         userService.addMyLists(authentication.getName(), request.getListName());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @DeleteMapping("/me/lists/{listId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> deleteMyLists(Authentication authentication, @PathVariable Long listId) {
+        userService.deleteMyLists(authentication.getName(), listId);
+        return ResponseEntity.noContent().build();
+    }
 }

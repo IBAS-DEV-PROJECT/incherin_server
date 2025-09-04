@@ -130,4 +130,13 @@ public class UserService {
                 .user(userRepository.findBySub(sub).orElseThrow())
                 .build());
     }
+
+    public void deleteMyLists(String sub, Long listId) {
+        LikeList likeList = likeListRepository.findById(listId).orElseThrow();
+        User user = userRepository.findBySub(sub).orElseThrow();
+        if (!likeList.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("본인의 리스트만 삭제할 수 있습니다.");
+        }
+        likeListRepository.delete(likeList);
+    }
 }

@@ -6,6 +6,7 @@ import ibas.inchelin.domain.user.entity.User;
 import ibas.inchelin.domain.user.repository.*;
 import ibas.inchelin.domain.review.repository.*;
 import ibas.inchelin.web.dto.user.MyListResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,19 +32,24 @@ class UserServiceTest {
 
     @InjectMocks private UserService userService;
 
-    @Test
-    @DisplayName("getMyLists 성공")
-    void getMyLists_success() {
-        // given
-        String sub = "sub-123";
-        User user = User.builder()
+    private User user;
+    private final String sub = "sub-123";
+
+    @BeforeEach
+    void setUp() {
+        user = User.builder()
                 .email("test@example.com")
                 .name("Tester")
                 .role(Role.USER)
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(user, "sub", sub);
+    }
 
+    @Test
+    @DisplayName("리스트 조회 - 성공")
+    void getMyLists_success() {
+        // given
         LikeList list1 = mock(LikeList.class);
         LikeList list2 = mock(LikeList.class);
         given(list1.getId()).willReturn(10L);
@@ -66,19 +72,10 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("addMyList 성공")
+    @DisplayName("리스트 추가 - 성공")
     void addMyLists_success() {
         // given
-        String sub = "sub-123";
         String listName = "새로운 맛집 리스트";
-        User user = User.builder()
-                .email("test@example.com")
-                .name("Tester")
-                .role(Role.USER)
-                .build();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        ReflectionTestUtils.setField(user, "sub", sub);
-
         given(userRepository.findBySub(sub)).willReturn(Optional.of(user));
 
         // when
@@ -86,5 +83,24 @@ class UserServiceTest {
 
         // then
         verify(likeListRepository).save(any(LikeList.class));
+    }
+
+    @Test
+    @DisplayName("리스트 삭제 - 성공")
+    void deleteMyLists_success() {
+        // given
+        Long listId = 10L;
+
+        LikeList likeList = mock(LikeList.class);
+        given(likeList.getUser()).willReturn(user);
+
+        given(userRepository.findBySub(sub)).willReturn(Optional.of(user));
+        given(likeListRepository.findById(listId)).willReturn(Optional.of(likeList));
+
+        // when
+        userService.deleteMyLists(sub, listId);
+
+        // then
+        verify(likeListRepository).delete(likeList);
     }
 }

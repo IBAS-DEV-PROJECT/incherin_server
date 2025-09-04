@@ -127,6 +127,15 @@ class LikeListRepositoryTest {
                 .contains("새로운 맛집 리스트");
     }
 
+    @Test
+    @DisplayName("좋아요 리스트 삭제 - 성공")
+    void delete_LikeList_Success() {
+        likeListRepository.delete(likeList1);
+        List<LikeList> user1LikeLists = likeListRepository.findByUserId(user1.getId());
+        assertThat(user1LikeLists).hasSize(1);
+        assertThat(user1LikeLists.get(0).getName()).isEqualTo("카페 리스트");
+    }
+
     private LikeList createLikeList(String name, User user) {
             return LikeList.builder()
                     .name(name)
