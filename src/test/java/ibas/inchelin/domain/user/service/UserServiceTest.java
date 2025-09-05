@@ -1,6 +1,7 @@
 package ibas.inchelin.domain.user.service;
 
 import ibas.inchelin.domain.store.entity.Store;
+import ibas.inchelin.domain.store.repository.StoreRepository;
 import ibas.inchelin.domain.user.Role;
 import ibas.inchelin.domain.user.entity.LikeList;
 import ibas.inchelin.domain.user.entity.LikeListStore;
@@ -36,6 +37,8 @@ class UserServiceTest {
     private LikeListRepository likeListRepository;
     @Mock
     private LikeListStoreRepository likeListStoreRepository;
+    @Mock
+    private StoreRepository storeRepository;
 
     @InjectMocks
     private UserService userService;
@@ -113,7 +116,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("리스트에 가게 조회 - 성공")
+    @DisplayName("리스트에 있는 가게 조회 - 성공")
     void getMyListItems_success() {
         // given
         Long listId = 10L;
@@ -150,5 +153,22 @@ class UserServiceTest {
         assertThat(response.items().get(1).itemId()).isEqualTo(2L);
         assertThat(response.items().get(1).storeId()).isEqualTo(101L);
         assertThat(response.items().get(1).storeName()).isEqualTo("맛집2");
+    }
+
+    @Test
+    @DisplayName("리스트에 가게 추가 - 성공")
+    void addMyListItem_success() {
+        Long listId = 10L;
+        Long storeId = 100L;
+        LikeList likeList = mock(LikeList.class);
+        given(userRepository.findBySub(sub)).willReturn(Optional.of(user));
+        given(likeListRepository.findById(listId)).willReturn(Optional.of(likeList));
+        given(likeList.getUser()).willReturn(user);
+        Store store = mock(Store.class);
+        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+        userService.addMyListItem(sub, listId, storeId);
+
+        verify(likeListStoreRepository).save(any(LikeListStore.class));
     }
 }

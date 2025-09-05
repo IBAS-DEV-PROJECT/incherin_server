@@ -71,10 +71,32 @@ class LikeListStoreRepositoryTest {
     void findByLikeListId_success() {
         List<LikeListStore> likeListStores = likeListStoreRepository.findByLikeListId(likeList.getId());
 
-        assertThat(likeListStores).hasSize(2);
         assertThat(likeListStores)
                 .extracting(LikeListStore::getStore)
                 .extracting(Store::getStoreName)
                 .containsExactlyInAnyOrder("식당1", "식당2");
+    }
+
+    @Test
+    @DisplayName("리스트에 가게 추가 - 성공")
+    void save_success() {
+        Store store3 = Store.builder()
+                .storeName("식당3")
+                .build();
+        entityManager.persistAndFlush(store3);
+
+        LikeListStore likeListStore3 = LikeListStore.builder()
+                .likeList(likeList)
+                .store(store3)
+                .build();
+
+        LikeListStore savedLikeListStore = likeListStoreRepository.save(likeListStore3);
+
+        assertThat(savedLikeListStore).isNotNull();
+        assertNotNull(savedLikeListStore.getId());
+
+        List<LikeListStore> likeListStores = likeListStoreRepository.findByLikeListId(likeList.getId());
+        assertThat(likeListStores).extracting(LikeListStore::getStore).extracting(Store::getStoreName)
+                .containsExactlyInAnyOrder("식당1", "식당2", "식당3");
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 class LikeListRepositoryTest {
@@ -115,16 +116,14 @@ class LikeListRepositoryTest {
 
         // Then: 저장이 성공적으로 되어야 함
         assertThat(savedLikeList).isNotNull();
-        assertThat(savedLikeList.getId()).isNotNull();
-        assertThat(savedLikeList.getName()).isEqualTo("새로운 맛집 리스트");
+        assertNotNull(savedLikeList.getId());
         assertThat(savedLikeList.getUser().getId()).isEqualTo(user1.getId());
 
         // And: 데이터베이스에서 조회했을 때도 존재해야 함
         List<LikeList> user1LikeLists = likeListRepository.findByUserId(user1.getId());
-        assertThat(user1LikeLists).hasSize(3); // 기존 2개 + 새로 추가된 1개
         assertThat(user1LikeLists)
                 .extracting(LikeList::getName)
-                .contains("새로운 맛집 리스트");
+                .containsExactlyInAnyOrder("한식 맛집 리스트", "카페 리스트", "새로운 맛집 리스트");
     }
 
     @Test
@@ -133,7 +132,9 @@ class LikeListRepositoryTest {
         likeListRepository.delete(likeList1);
         List<LikeList> user1LikeLists = likeListRepository.findByUserId(user1.getId());
         assertThat(user1LikeLists).hasSize(1);
-        assertThat(user1LikeLists.get(0).getName()).isEqualTo("카페 리스트");
+        assertThat(user1LikeLists)
+                .extracting(LikeList::getName)
+                .containsExactlyInAnyOrder("카페 리스트");
     }
 
     private LikeList createLikeList(String name, User user) {

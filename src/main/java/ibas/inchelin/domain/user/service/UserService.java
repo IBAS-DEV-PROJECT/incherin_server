@@ -3,6 +3,8 @@ package ibas.inchelin.domain.user.service;
 import ibas.inchelin.domain.review.entity.Review;
 import ibas.inchelin.domain.review.entity.ReviewPhoto;
 import ibas.inchelin.domain.review.repository.*;
+import ibas.inchelin.domain.store.entity.Store;
+import ibas.inchelin.domain.store.repository.StoreRepository;
 import ibas.inchelin.domain.user.entity.Follow;
 import ibas.inchelin.domain.user.entity.LikeList;
 import ibas.inchelin.domain.user.entity.LikeListStore;
@@ -35,6 +37,7 @@ public class UserService {
     private final ReviewMenuRepository reviewMenuRepository;
     private final LikeListRepository likeListRepository;
     private final LikeListStoreRepository likeListStoreRepository;
+    private final StoreRepository storeRepository;
 
     @Transactional(readOnly = true)
     public MyInfoResponse getMyInfo(String sub) {
@@ -157,5 +160,18 @@ public class UserService {
                         lls.getStore().getStoreName()
                 )).toList();
         return new MyListItemListResponse(stores);
+    }
+
+    public void addMyListItem(String sub, Long listId, Long storeId) {
+        User user = userRepository.findBySub(sub).orElseThrow();
+        LikeList likeList = likeListRepository.findById(listId).orElseThrow();
+        if (!likeList.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("본인의 리스트에만 추가할 수 있습니다.");
+        }
+        Store store = storeRepository.findById(storeId).orElseThrow();
+        likeListStoreRepository.save(LikeListStore.builder()
+                .likeList(likeList)
+                .store(store)
+                .build());
     }
 }

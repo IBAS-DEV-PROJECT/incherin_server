@@ -4,7 +4,6 @@ import ibas.inchelin.domain.user.service.UserService;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
 import ibas.inchelin.web.dto.user.*;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -89,5 +88,12 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<MyListItemListResponse> getMyListItemList(Authentication authentication, @PathVariable Long listId) {
         return ResponseEntity.ok(userService.getMyListItems(authentication.getName(), listId));
+    }
+
+    @PostMapping("/me/lists/{listId}/items")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> addMyListItem(Authentication authentication, @PathVariable Long listId, @RequestBody MyListItemAddRequest request) {
+        userService.addMyListItem(authentication.getName(), listId, request.getStoreId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
