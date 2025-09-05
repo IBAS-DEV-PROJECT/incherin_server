@@ -2,7 +2,9 @@ package ibas.inchelin.domain.user.repository;
 
 import ibas.inchelin.domain.user.Role;
 import ibas.inchelin.domain.user.entity.LikeList;
+import ibas.inchelin.domain.user.entity.LikeListStore;
 import ibas.inchelin.domain.user.entity.User;
+import ibas.inchelin.domain.store.entity.Store;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,9 @@ class LikeListRepositoryTest {
 
     @Autowired
     private LikeListRepository likeListRepository;
+
+    @Autowired
+    private LikeListStoreRepository likeListStoreRepository;
 
     private User user1;
     private User user2;
@@ -59,7 +64,7 @@ class LikeListRepositoryTest {
         entityManager.persistAndFlush(likeList2);
         entityManager.persistAndFlush(likeList3);
 
-        entityManager.clear(); // 영속성 컨텍스트 클리어
+        entityManager.clear();
     }
 
     @Test
@@ -127,14 +132,47 @@ class LikeListRepositoryTest {
     }
 
     @Test
-    @DisplayName("좋아요 리스트 삭제 - 성공")
+    @DisplayName("리스트 삭제 시 연관된 LikeListStore도 함께 삭제")
     void delete_LikeList_Success() {
-        likeListRepository.delete(likeList1);
+        Store store1 = Store.builder()
+                .storeName("테스트 가게1")
+                .build();
+        Store store2 = Store.builder()
+                .storeName("테스트 가게2")
+                .build();
+        entityManager.persistAndFlush(store1);
+        entityManager.persistAndFlush(store2);
+
+        LikeListStore likeListStore1 = LikeListStore.builder()
+                .likeList(likeList1)
+                .store(store1)
+                .build();
+        LikeListStore likeListStore2 = LikeListStore.builder()
+                .likeList(likeList1)
+                .store(store2)
+                .build();
+        entityManager.persistAndFlush(likeListStore1);
+        entityManager.persistAndFlush(likeListStore2);
+
+        // Given: 삭제 전 likeList1에 연관된 LikeListStore 개수 확인
+        List<LikeListStore> beforeDelete = likeListStoreRepository.findByLikeListId(likeList1.getId());
+        assertThat(beforeDelete).hasSize(2);
+
+        // When: likeList1 삭제
+        LikeList likeList = likeListRepository.findById(likeList1.getId()).orElseThrow();
+        likeListRepository.delete(likeList);
+        entityManager.flush();
+        entityManager.clear();
+
+        // Then: likeList1이 삭제되어야 함
         List<LikeList> user1LikeLists = likeListRepository.findByUserId(user1.getId());
-        assertThat(user1LikeLists).hasSize(1);
         assertThat(user1LikeLists)
                 .extracting(LikeList::getName)
                 .containsExactlyInAnyOrder("카페 리스트");
+
+        // And: 연관된 LikeListStore들도 함께 삭제되어야 함
+        List<LikeListStore> afterDelete = likeListStoreRepository.findByLikeListId(likeList1.getId());
+        assertThat(afterDelete).isEmpty();
     }
 
     private LikeList createLikeList(String name, User user) {

@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "like_list",
         uniqueConstraints = @UniqueConstraint(name = "uk_likelist_user_name", columnNames = {"user_id", "name"})
@@ -24,6 +27,9 @@ public class LikeList extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "likeList", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<LikeListStore> likeListStores = new ArrayList<>();
 
     @Builder
     public LikeList(String name, User user) {
