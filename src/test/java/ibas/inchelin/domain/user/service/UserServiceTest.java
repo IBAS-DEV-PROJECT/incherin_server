@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -44,6 +44,7 @@ class UserServiceTest {
     private UserService userService;
 
     private User user;
+    private User otherUser;
     private final String sub = "sub-123";
 
     @BeforeEach
@@ -55,6 +56,13 @@ class UserServiceTest {
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(user, "sub", sub);
+
+        otherUser = User.builder()
+                .email("other@example.com")
+                .name("Other User")
+                .role(Role.USER)
+                .build();
+        ReflectionTestUtils.setField(otherUser, "id", 2L);
     }
 
     @Test
@@ -171,4 +179,49 @@ class UserServiceTest {
 
         verify(likeListStoreRepository).save(any(LikeListStore.class));
     }
+
+    @Test
+    @DisplayName("리스트에 있는 가게 삭제 - 성공")
+    void deleteMyListItem_success() {
+        // given
+        Long itemId = 1L;
+        LikeListStore likeListStore = mock(LikeListStore.class);
+        LikeList likeList = mock(LikeList.class);
+
+        given(likeListStoreRepository.findById(itemId)).willReturn(Optional.of(likeListStore));
+        given(userRepository.findBySub(sub)).willReturn(Optional.of(user));
+        given(likeListStore.getLikeList()).willReturn(likeList);
+        given(likeListStore.getLikeList().getUser()).willReturn(user);
+
+        // when
+        userService.deleteMyListItem(sub, itemId);
+
+        // then
+        verify(likeListStoreRepository).delete(likeListStore);
+    }
+
+    @Test
+    @DisplayName("다른 사용자의 리스트 아이템 삭제 시도 - 예외 발생")
+    void deleteMyListItem_otherUserItem_throwsException() {
+        // given
+        Long itemId = 1L;
+
+        LikeListStore likeListStore = mock(LikeListStore.class);
+        LikeList likeList = mock(LikeList.class);
+
+        given(likeListStoreRepository.findById(itemId)).willReturn(Optional.of(likeListStore));
+        given(userRepository.findBySub(sub)).willReturn(Optional.of(user));
+        given(likeListStore.getLikeList()).willReturn(likeList);
+        given(likeListStore.getLikeList().getUser()).willReturn(otherUser);
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.deleteMyListItem(sub, itemId);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("본인의 리스트에서만 삭제할 수 있습니다.");
+        verify(likeListStoreRepository, never()).delete(any());
+    }
 }
+
+

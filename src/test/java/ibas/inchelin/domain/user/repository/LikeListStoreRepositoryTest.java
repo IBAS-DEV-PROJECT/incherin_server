@@ -27,6 +27,8 @@ class LikeListStoreRepositoryTest {
     private LikeListStoreRepository likeListStoreRepository;
 
     private LikeList likeList;
+    private LikeListStore likeListStore1;
+    private LikeListStore likeListStore2;
 
     @BeforeEach
     void setUp() {
@@ -52,11 +54,11 @@ class LikeListStoreRepositoryTest {
         entityManager.persistAndFlush(store1);
         entityManager.persistAndFlush(store2);
 
-        LikeListStore likeListStore1 = LikeListStore.builder()
+        likeListStore1 = LikeListStore.builder()
                 .likeList(likeList)
                 .store(store1)
                 .build();
-        LikeListStore likeListStore2 = LikeListStore.builder()
+        likeListStore2 = LikeListStore.builder()
                 .likeList(likeList)
                 .store(store2)
                 .build();
@@ -67,7 +69,7 @@ class LikeListStoreRepositoryTest {
     }
 
     @Test
-    @DisplayName("리스트에 추가한 가게 조회 - 성공")
+    @DisplayName("리스트 아이디로 리스트에 추가한 가게 조회 - 성공")
     void findByLikeListId_success() {
         List<LikeListStore> likeListStores = likeListStoreRepository.findByLikeListId(likeList.getId());
 
@@ -98,5 +100,16 @@ class LikeListStoreRepositoryTest {
         List<LikeListStore> likeListStores = likeListStoreRepository.findByLikeListId(likeList.getId());
         assertThat(likeListStores).extracting(LikeListStore::getStore).extracting(Store::getStoreName)
                 .containsExactlyInAnyOrder("식당1", "식당2", "식당3");
+    }
+
+    @Test
+    @DisplayName("리스트에서 가게 삭제 - 성공")
+    void delete_success() {
+        likeListStoreRepository.delete(likeListStore1);
+        List<LikeListStore> likeListStores = likeListStoreRepository.findByLikeListId(likeList.getId());
+        assertThat(likeListStores)
+                .extracting(LikeListStore::getStore)
+                .extracting(Store::getStoreName)
+                .containsExactly("식당2");
     }
 }

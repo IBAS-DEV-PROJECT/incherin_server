@@ -174,4 +174,13 @@ public class UserService {
                 .store(store)
                 .build());
     }
+
+    public void deleteMyListItem(String sub, Long itemId) {
+        LikeListStore likeStore = likeListStoreRepository.findById(itemId).orElseThrow();
+        User user = userRepository.findBySub(sub).orElseThrow();
+        if(!likeStore.getLikeList().getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("본인의 리스트에서만 삭제할 수 있습니다.");
+        }
+        likeListStoreRepository.delete(likeStore);
+    }
 }
