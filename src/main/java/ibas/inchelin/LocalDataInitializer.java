@@ -1,15 +1,10 @@
 package ibas.inchelin;
 
-import ibas.inchelin.domain.review.Keyword;
 import ibas.inchelin.domain.review.entity.Review;
-import ibas.inchelin.domain.review.entity.ReviewKeyword;
-import ibas.inchelin.domain.review.entity.ReviewMenu;
-import ibas.inchelin.domain.review.entity.ReviewPhoto;
 import ibas.inchelin.domain.review.repository.ReviewKeywordRepository;
 import ibas.inchelin.domain.review.repository.ReviewMenuRepository;
 import ibas.inchelin.domain.review.repository.ReviewPhotoRepository;
 import ibas.inchelin.domain.review.repository.ReviewRepository;
-import ibas.inchelin.domain.store.entity.Menu;
 import ibas.inchelin.domain.store.entity.Store;
 import ibas.inchelin.domain.store.repository.MenuRepository;
 import ibas.inchelin.domain.store.repository.StoreRepository;
@@ -52,9 +47,6 @@ public class LocalDataInitializer implements CommandLineRunner {
         initFollow(1L, 4L);
         initStore();
         initReview();
-        initReviewMenu();
-        initReviewPhoto();
-        initReviewKeyword();
     }
 
     private void initUser(String email, String name) {
@@ -85,25 +77,5 @@ public class LocalDataInitializer implements CommandLineRunner {
                 .store(storeRepository.findById(1L).orElseThrow())
                 .writtenBy(userRepository.findById(1L).orElseThrow())
                 .build());
-    }
-
-    private void initReviewMenu() {
-        Menu menu = Menu.builder().name("메뉴1").price(1000).build();
-        menuRepository.save(menu);
-        reviewMenuRepository.save(ReviewMenu.builder()
-                .review(reviewRepository.findById(1L).orElseThrow())
-                .menu(menu).build());
-    }
-
-    private void initReviewPhoto() {
-        reviewPhotoRepository.save(ReviewPhoto.builder()
-                .imageUrl("https://example.com/photo1.jpg")
-                .review(reviewRepository.findById(1L).orElseThrow()).build());
-    }
-
-    private void initReviewKeyword() {
-        reviewKeywordRepository.save(ReviewKeyword.builder()
-                .keyword(Keyword.DELICIOUS)
-                .review(reviewRepository.findById(1L).orElseThrow()).build());
     }
 }

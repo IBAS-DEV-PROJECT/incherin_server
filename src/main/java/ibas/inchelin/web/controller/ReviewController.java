@@ -1,15 +1,20 @@
 package ibas.inchelin.web.controller;
 
+import ibas.inchelin.S3Service;
+import ibas.inchelin.domain.review.entity.Review;
 import ibas.inchelin.domain.review.service.ReviewService;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
+import ibas.inchelin.web.dto.review.ReviewWriteRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -17,10 +22,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final S3Service s3Service;
 
     @GetMapping("/users/me/reviews")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ReviewListResponse> getMyReviews(Authentication authentication, @RequestParam(required = false, defaultValue = "latest") String sort) {
         return ResponseEntity.ok(reviewService.getMyReviews(authentication.getName(), sort));
+    }
+
+    @PostMapping(value = "/users/me/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> writeReview(Authentication authentication, ReviewWriteRequest writeRequest) throws IOException {
+        List<String> photoUrls = s3Service.uploadMany(writeRequest.getPhotos());
+        reviewService.write(authentication.getName(), writeRequest.getStoreId(), writeRequest.getRating(), writeRequest.getContent(),
+                writeRequest.getEatingMenus(), writeRequest.getKeywords(), photoUrls);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -24,8 +24,11 @@ public class ReviewPhoto extends BaseTimeEntity {
     private Review review;
 
     @Builder
-    public ReviewPhoto(String imageUrl, Review review) {
+    public ReviewPhoto(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setReview(Review review) {
         this.review = review;
     }
 }

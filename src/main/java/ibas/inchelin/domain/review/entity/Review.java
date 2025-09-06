@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "review")
 @Getter
@@ -35,11 +38,41 @@ public class Review extends BaseTimeEntity {
     @JoinColumn(name = "written_by")
     private User writtenBy;
 
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewPhoto> reviewPhotos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewKeyword> reviewKeywords = new ArrayList<>();
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewMenu> reviewMenus = new ArrayList<>();
+
     @Builder
     public Review(Double rating, String content, Store store, User writtenBy) {
         this.rating = rating;
         this.content = content;
         this.store = store;
         this.writtenBy = writtenBy;
+    }
+
+    public void addReviewPhoto(List<ReviewPhoto> reviewPhoto) {
+        for (ReviewPhoto photo : reviewPhoto) {
+            photo.setReview(this);
+            this.reviewPhotos.add(photo);
+        }
+    }
+
+    public void addReviewKeyword(List<ReviewKeyword> reviewKeyword) {
+        for (ReviewKeyword keyword : reviewKeyword) {
+            keyword.setReview(this);
+            this.reviewKeywords.add(keyword);
+        }
+    }
+
+    public void addReviewMenu(List<ReviewMenu> reviewMenu) {
+        for (ReviewMenu menu : reviewMenu) {
+            menu.setReview(this);
+            this.reviewMenus.add(menu);
+        }
     }
 }

@@ -27,8 +27,11 @@ public class ReviewKeyword extends BaseTimeEntity {
     private Review review;
 
     @Builder
-    public ReviewKeyword(Keyword keyword, Review review) {
+    public ReviewKeyword(Keyword keyword) {
         this.keyword = keyword;
+    }
+
+    public void setReview(Review review) {
         this.review = review;
     }
 }

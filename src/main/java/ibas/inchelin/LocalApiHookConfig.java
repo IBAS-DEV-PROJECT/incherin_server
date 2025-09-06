@@ -1,9 +1,7 @@
 package ibas.inchelin;
 
-import ibas.inchelin.domain.review.Keyword;
 import ibas.inchelin.domain.review.entity.*;
 import ibas.inchelin.domain.review.repository.*;
-import ibas.inchelin.domain.store.entity.Menu;
 import ibas.inchelin.domain.store.repository.MenuRepository;
 import ibas.inchelin.domain.store.repository.StoreRepository;
 import ibas.inchelin.domain.user.repository.UserRepository;
@@ -68,9 +66,6 @@ public class LocalApiHookConfig implements WebMvcConfigurer {
 
     private void runTestHook() {
         initReview();
-        initReviewMenu();
-        initReviewPhoto();
-        initReviewKeyword();
         initReviewLike();
     }
 
@@ -81,26 +76,6 @@ public class LocalApiHookConfig implements WebMvcConfigurer {
                 .store(storeRepository.findById(1L).orElseThrow())
                 .writtenBy(userRepository.findById(5L).orElseThrow())
                 .build());
-    }
-
-    private void initReviewMenu() {
-        Menu menu = Menu.builder().name("내가 먹은 메뉴1").price(2000).build();
-        menuRepository.save(menu);
-        reviewMenuRepository.save(ReviewMenu.builder()
-                .review(reviewRepository.findById(2L).orElseThrow())
-                .menu(menu).build());
-    }
-
-    private void initReviewPhoto() {
-        reviewPhotoRepository.save(ReviewPhoto.builder()
-                .imageUrl("https://example.com/photo2.jpg")
-                .review(reviewRepository.findById(2L).orElseThrow()).build());
-    }
-
-    private void initReviewKeyword() {
-        reviewKeywordRepository.save(ReviewKeyword.builder()
-                .keyword(Keyword.VALUE_FOR_MONEY)
-                .review(reviewRepository.findById(2L).orElseThrow()).build());
     }
 
     private void initReviewLike() {

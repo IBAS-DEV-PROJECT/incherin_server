@@ -1,7 +1,6 @@
 package ibas.inchelin.domain.review.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
-import ibas.inchelin.domain.store.entity.Menu;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,9 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "review_menu",
-        uniqueConstraints = @UniqueConstraint(name = "uk_reviewmenu_review_menu", columnNames = {"review_id", "menu_id"})
-)
+@Table(name = "review_menu")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewMenu extends BaseTimeEntity {
@@ -19,17 +16,18 @@ public class ReviewMenu extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String menu;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_id")
-    private Menu menu;
-
     @Builder
-    public ReviewMenu(Review review, Menu menu) {
-        this.review = review;
+    public ReviewMenu(String menu, Review review) {
         this.menu = menu;
+    }
+
+    public void setReview(Review review) {
+        this.review = review;
     }
 }
