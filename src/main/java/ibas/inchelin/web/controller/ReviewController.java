@@ -38,4 +38,11 @@ public class ReviewController {
                 writeRequest.getEatingMenus(), writeRequest.getKeywords(), photoUrls);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @DeleteMapping("/users/me/reviews/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> deleteMyReview(Authentication authentication, @PathVariable Long reviewId) {
+        reviewService.deleteMyReview(authentication.getName(), reviewId);
+        return ResponseEntity.noContent().build();
+    }
 }

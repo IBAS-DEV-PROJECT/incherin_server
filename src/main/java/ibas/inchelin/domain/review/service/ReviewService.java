@@ -84,4 +84,13 @@ public class ReviewService {
         review.addReviewMenu(menus);
         reviewRepository.save(review);
     }
+
+    public void deleteMyReview(String sub, Long reviewId) {
+        User user = userRepository.findBySub(sub).orElseThrow();
+        Review review = reviewRepository.findById(reviewId).orElseThrow();
+        if (!review.getWrittenBy().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("본인의 리뷰만 삭제할 수 있습니다.");
+        }
+        reviewRepository.delete(review);
+    }
 }
