@@ -1,9 +1,9 @@
 package ibas.inchelin.web.controller;
 
 import ibas.inchelin.S3Service;
-import ibas.inchelin.domain.review.entity.Review;
 import ibas.inchelin.domain.review.service.ReviewService;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
+import ibas.inchelin.web.dto.review.ReviewResponse;
 import ibas.inchelin.web.dto.review.ReviewWriteRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -44,5 +44,10 @@ public class ReviewController {
     public ResponseEntity<Void> deleteMyReview(Authentication authentication, @PathVariable Long reviewId) {
         reviewService.deleteMyReview(authentication.getName(), reviewId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/reviews/stores/{storeId}")
+    public ResponseEntity<ReviewListResponse> getStoreReviews(@PathVariable Long storeId, @RequestParam(required = false, defaultValue = "latest") String sort) {
+        return ResponseEntity.ok(reviewService.getStoreReviews(storeId, sort));
     }
 }

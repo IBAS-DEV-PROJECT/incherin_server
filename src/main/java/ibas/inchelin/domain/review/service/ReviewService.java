@@ -43,21 +43,7 @@ public class ReviewService {
             reviews = reviewRepository.findByWrittenBy_SubOrderByCreatedAtDesc(sub);
         }
 
-        List<ReviewResponse> reviewList = reviews.stream()
-                .map(r -> new ReviewResponse(
-                        r.getId(),
-                        r.getWrittenBy().getId(),
-                        r.getRating(),
-                        reviewMenuRepository.findByReviewId(r.getId()).stream().map(ReviewMenu::getMenu).toList(),
-                        reviewPhotoRepository.findByReviewId(r.getId()).stream().map(ReviewPhoto::getImageUrl).toList(),
-                        r.getContent(),
-                        reviewKeywordRepository.findByReviewId(r.getId()).stream().map(rk -> rk.getKeyword().getLabel()).toList(),
-                        r.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                        reviewRepository.countByWrittenBy_IdAndStoreId(r.getWrittenBy().getId(), r.getStore().getId()),
-                        reviewLikeRepository.countByReviewId(r.getId()),
-                        false))
-                .toList();
-        return new ReviewListResponse(reviewList);
+        return getReviewListResponse(reviews);
     }
 
     public void write(String sub, Long storeId, Double rating, String content, List<String> eatingMenus, List<Keyword> keywords, List<String> photoUrls) {
@@ -92,5 +78,37 @@ public class ReviewService {
             throw new IllegalArgumentException("본인의 리뷰만 삭제할 수 있습니다.");
         }
         reviewRepository.delete(review);
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewListResponse getStoreReviews(Long storeId, String sort) {
+        List<Review> reviews;
+        if ("rating".equalsIgnoreCase(sort)) { // 평점높은순
+            reviews = reviewRepository.findByStoreIdOrderByRatingDesc(storeId);
+        } else if ("oldest".equalsIgnoreCase(sort)) { // 오래된순
+            reviews = reviewRepository.findByStoreIdOrderByCreatedAtAsc(storeId);
+        } else { // 최신순
+            reviews = reviewRepository.findByStoreIdOrderByRatingDesc(storeId);
+        }
+
+        return getReviewListResponse(reviews);
+    }
+
+    private ReviewListResponse getReviewListResponse(List<Review> reviews) {
+        List<ReviewResponse> reviewList = reviews.stream()
+                .map(r -> new ReviewResponse(
+                        r.getId(),
+                        r.getWrittenBy().getId(),
+                        r.getRating(),
+                        reviewMenuRepository.findByReviewId(r.getId()).stream().map(ReviewMenu::getMenu).toList(),
+                        reviewPhotoRepository.findByReviewId(r.getId()).stream().map(ReviewPhoto::getImageUrl).toList(),
+                        r.getContent(),
+                        reviewKeywordRepository.findByReviewId(r.getId()).stream().map(rk -> rk.getKeyword().getLabel()).toList(),
+                        r.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                        reviewRepository.countByWrittenBy_IdAndStoreId(r.getWrittenBy().getId(), r.getStore().getId()),
+                        reviewLikeRepository.countByReviewId(r.getId()),
+                        false))
+                .toList();
+        return new ReviewListResponse(reviewList);
     }
 }
