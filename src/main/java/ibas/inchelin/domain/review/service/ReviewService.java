@@ -1,10 +1,7 @@
 package ibas.inchelin.domain.review.service;
 
 import ibas.inchelin.domain.review.Keyword;
-import ibas.inchelin.domain.review.entity.Review;
-import ibas.inchelin.domain.review.entity.ReviewKeyword;
-import ibas.inchelin.domain.review.entity.ReviewMenu;
-import ibas.inchelin.domain.review.entity.ReviewPhoto;
+import ibas.inchelin.domain.review.entity.*;
 import ibas.inchelin.domain.review.repository.*;
 import ibas.inchelin.domain.store.entity.Store;
 import ibas.inchelin.domain.store.repository.StoreRepository;
@@ -92,6 +89,16 @@ public class ReviewService {
         }
 
         return getReviewListResponse(reviews);
+    }
+
+    public void likeReview(String sub, Long reviewId) {
+        User user = userRepository.findBySub(sub).orElseThrow();
+        Review review = reviewRepository.findById(reviewId).orElseThrow();
+        ReviewLike reviewLike = ReviewLike.builder()
+                .review(review)
+                .user(user)
+                .build();
+        reviewLikeRepository.save(reviewLike);
     }
 
     private ReviewListResponse getReviewListResponse(List<Review> reviews) {

@@ -1,10 +1,13 @@
 package ibas.inchelin.domain.user.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
+import ibas.inchelin.domain.review.entity.ReviewLike;
 import ibas.inchelin.domain.user.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +39,9 @@ public class User extends BaseTimeEntity {
 
     @Column(unique = true, nullable = false)
     private String sub;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ReviewLike> reviewLikes = new ArrayList<>();
 
     @Builder
     public User(String email, String name, Role role) {

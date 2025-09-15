@@ -3,7 +3,6 @@ package ibas.inchelin.web.controller;
 import ibas.inchelin.S3Service;
 import ibas.inchelin.domain.review.service.ReviewService;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
-import ibas.inchelin.web.dto.review.ReviewResponse;
 import ibas.inchelin.web.dto.review.ReviewWriteRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -49,5 +48,12 @@ public class ReviewController {
     @GetMapping("/reviews/stores/{storeId}")
     public ResponseEntity<ReviewListResponse> getStoreReviews(@PathVariable Long storeId, @RequestParam(required = false, defaultValue = "latest") String sort) {
         return ResponseEntity.ok(reviewService.getStoreReviews(storeId, sort));
+    }
+
+    @PostMapping("/users/reviews/{reviewId}/like")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> likeReview(Authentication authentication, @PathVariable Long reviewId) {
+        reviewService.likeReview(authentication.getName(), reviewId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
