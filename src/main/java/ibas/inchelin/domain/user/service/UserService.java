@@ -1,5 +1,6 @@
 package ibas.inchelin.domain.user.service;
 
+import ibas.inchelin.S3Service;
 import ibas.inchelin.domain.review.repository.*;
 import ibas.inchelin.domain.store.entity.Store;
 import ibas.inchelin.domain.store.repository.StoreRepository;
@@ -28,6 +29,7 @@ public class UserService {
     private final LikeListRepository likeListRepository;
     private final LikeListStoreRepository likeListStoreRepository;
     private final StoreRepository storeRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public MyInfoResponse getMyInfo(String sub) {
@@ -41,6 +43,13 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
         user.changeInfo(nickname, bio);
         return new MyInfoResponse(user.getId(), user.getNickname(), user.getName(), user.getBio(), user.getProfileImage(), user.getEmail(), user.getRole());
+    }
+
+    public void updateProfileImage(String sub, String url) {
+        User user = userRepository.findBySub(sub).orElseThrow();
+        // 기존 이미지가 있다면 삭제
+        s3Service.deleteFile(user.getProfileImage());
+        user.changeProfileImage(url);
     }
 
     @Transactional(readOnly = true)

@@ -1,14 +1,18 @@
 package ibas.inchelin.web.controller;
 
+import ibas.inchelin.S3Service;
 import ibas.inchelin.domain.user.service.UserService;
-import ibas.inchelin.web.dto.review.ReviewListResponse;
 import ibas.inchelin.web.dto.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final S3Service s3Service;
 
     @GetMapping("/users/me")
     @PreAuthorize("hasRole('USER')")
@@ -27,6 +32,14 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<MyInfoResponse> updateMyInfo(Authentication authentication, @RequestBody MyInfoUpdateRequest request) {
         return ResponseEntity.ok(userService.updateMyInfo(request.getNickname(), request.getBio(), authentication.getName()));
+    }
+
+    @PutMapping(value = "/users/me/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> updateProfileImage(Authentication authentication, @RequestParam MultipartFile file) throws IOException {
+        String url = s3Service.uploadOne(file);
+        userService.updateProfileImage(authentication.getName(), url);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/profiles/{userId}")
