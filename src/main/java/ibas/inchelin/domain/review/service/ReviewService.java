@@ -101,6 +101,12 @@ public class ReviewService {
         reviewLikeRepository.save(reviewLike);
     }
 
+    public void unlikeReview(String sub, Long reviewId) {
+        User user = userRepository.findBySub(sub).orElseThrow();
+        ReviewLike reviewLike = reviewLikeRepository.findByReviewIdAndUserId(reviewId, user.getId());
+        reviewLikeRepository.delete(reviewLike);
+    }
+
     private ReviewListResponse getReviewListResponse(List<Review> reviews) {
         List<ReviewResponse> reviewList = reviews.stream()
                 .map(r -> new ReviewResponse(

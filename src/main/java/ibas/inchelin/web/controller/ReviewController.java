@@ -56,4 +56,11 @@ public class ReviewController {
         reviewService.likeReview(authentication.getName(), reviewId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @DeleteMapping("/users/reviews/{reviewId}/like")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> unlikeReview(Authentication authentication, @PathVariable Long reviewId) {
+        reviewService.unlikeReview(authentication.getName(), reviewId);
+        return ResponseEntity.noContent().build();
+    }
 }
