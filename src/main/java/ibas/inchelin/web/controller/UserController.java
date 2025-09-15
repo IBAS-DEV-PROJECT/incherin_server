@@ -42,6 +42,13 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/users/me/profile-image")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> deleteProfileImage(Authentication authentication) {
+        userService.updateProfileImage(authentication.getName(), null);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/profiles/{userId}")
     public ResponseEntity<OtherUserInfoResponse> getOtherUserInfo(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.otherUserInfo(userId));
