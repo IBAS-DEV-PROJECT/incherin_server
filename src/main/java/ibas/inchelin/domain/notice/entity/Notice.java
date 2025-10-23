@@ -13,15 +13,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice extends BaseTimeEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id // 이 필드가 테이블의 기본 키(Primary Key)임을 나타냄
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 값을 데이터베이스가 자동으로 생성하도록 함
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private String title; // 목록 조회 시 사용할 제목
 
     @Lob
-    private String content;
+    private String content; // 목록 조회 시 사용할 본문
 
     @Enumerated(EnumType.STRING)
     private NoticeType type;
