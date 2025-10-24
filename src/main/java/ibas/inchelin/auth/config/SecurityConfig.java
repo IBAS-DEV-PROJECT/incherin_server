@@ -36,7 +36,9 @@ public class SecurityConfig {
             "/api/profiles/{userId:\\d+}",
             "/api/followers/{userId:\\d+}",
             "/api/following/{userId:\\d+}",
-            "/api/reviews/stores/{storeId:\\d+}"
+            "/api/reviews/stores/{storeId:\\d+}",
+            "/api/notices",
+            "/api/notices/{noticeId:\\d+}"
     };
 
     @Bean
