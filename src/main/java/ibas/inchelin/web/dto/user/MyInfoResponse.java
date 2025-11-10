@@ -9,5 +9,6 @@ public record MyInfoResponse(
         String bio,
         String profileImage,
         String email,
-        Role role
+        int followers,
+        int following
 ) {}

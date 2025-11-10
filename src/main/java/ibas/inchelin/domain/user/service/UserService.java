@@ -35,14 +35,18 @@ public class UserService {
     public MyInfoResponse getMyInfo(String sub) {
         User user = userRepository.findBySub(sub)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
-        return new MyInfoResponse(user.getId(), user.getNickname(), user.getName(), user.getBio(), user.getProfileImage(), user.getEmail(), user.getRole());
+        int followerCount = followRepository.countByFollowUserId(user.getId());
+        int followingCount = followRepository.countByUserId(user.getId());
+        return new MyInfoResponse(user.getId(), user.getNickname(), user.getName(), user.getBio(), user.getProfileImage(), user.getEmail(), followerCount, followingCount);
     }
 
     public MyInfoResponse updateMyInfo(String nickname, String bio, String sub) {
         User user = userRepository.findBySub(sub)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
         user.changeInfo(nickname, bio);
-        return new MyInfoResponse(user.getId(), user.getNickname(), user.getName(), user.getBio(), user.getProfileImage(), user.getEmail(), user.getRole());
+        int followerCount = followRepository.countByFollowUserId(user.getId());
+        int followingCount = followRepository.countByUserId(user.getId());
+        return new MyInfoResponse(user.getId(), user.getNickname(), user.getName(), user.getBio(), user.getProfileImage(), user.getEmail(), followerCount, followingCount);
     }
 
     public void updateProfileImage(String sub, String url) {
