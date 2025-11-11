@@ -1,8 +1,10 @@
 package ibas.inchelin.web.dto.user;
 
 public record OtherUserInfoResponse(
+        Long userId,
         String nickname,
-        String name,
         String bio,
-        String profileImage
+        String profileImage,
+        int followers,
+        int following
 ) {}

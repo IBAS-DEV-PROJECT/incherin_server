@@ -60,7 +60,9 @@ public class UserService {
     public OtherUserInfoResponse otherUserInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
-        return new OtherUserInfoResponse(user.getNickname(), user.getName(), user.getBio(), user.getProfileImage());
+        int followerCount = followRepository.countByFollowUserId(user.getId());
+        int followingCount = followRepository.countByUserId(user.getId());
+        return new OtherUserInfoResponse(user.getId(), user.getNickname(), user.getBio(), user.getProfileImage(), followerCount, followingCount);
     }
 
     @Transactional(readOnly = true)
