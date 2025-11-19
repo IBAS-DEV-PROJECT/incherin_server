@@ -24,7 +24,7 @@ public class SecurityConfig {
             "/login/**",
             "/oauth2/**",
             "/h2-console/**",
-            "/api/auth/**",
+            "/auth/**",
             "/docs/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -33,12 +33,12 @@ public class SecurityConfig {
 
     // HTTP GET 전용 공개 엔드포인트 목록
     private static final String[] PUBLIC_GET_ENDPOINTS = {
-            "/api/profiles/{userId:\\d+}",
-            "/api/followers/{userId:\\d+}",
-            "/api/following/{userId:\\d+}",
-            "/api/reviews/stores/{storeId:\\d+}",
-            "/api/notices",
-            "/api/notices/{noticeId:\\d+}"
+            "/profiles/{userId:\\d+}",
+            "/followers/{userId:\\d+}",
+            "/following/{userId:\\d+}",
+            "/reviews/stores/{storeId:\\d+}",
+            "/notices",
+            "/notices/{noticeId:\\d+}"
     };
 
     @Bean

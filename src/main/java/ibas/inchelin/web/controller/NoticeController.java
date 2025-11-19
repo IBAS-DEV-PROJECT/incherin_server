@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController //반환값 JSON
-@RequestMapping("/api/notices")
+@RequestMapping("/notices")
 @RequiredArgsConstructor
 public class NoticeController {
 
