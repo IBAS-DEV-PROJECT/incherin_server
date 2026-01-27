@@ -8,15 +8,9 @@ public record StoreListResponse(
         List<StoreListItemResponse> stores
 ) {
     public record StoreListItemResponse(
-            Long storeId,
-            String storeName,
-            Category category,
-            String thumbnail,
-            Boolean isOpen,
-            Boolean isDeliveryAvailable,
-            int distance,
-            Double rating,
-            int reviewCount,
-            int bookmarkCount
+            Long id,
+            String name,
+            String category,
+            String thumbnail
     ) {}
 }

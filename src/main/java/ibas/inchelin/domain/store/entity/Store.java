@@ -29,16 +29,12 @@ public class Store extends BaseTimeEntity {
 
     private String thumbnail;
 
-    private Boolean isDeliveryAvailable;
-
     private Double lat;
     private Double lng;
 
     private String address;
-    private String phone;
-    private String additionalInfo;
 
-    private String aiSummary;
+    private String phone;
 
     @Builder
     public Store(String storeName) {
