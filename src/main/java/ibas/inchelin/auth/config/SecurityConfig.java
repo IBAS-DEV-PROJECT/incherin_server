@@ -35,6 +35,10 @@ public class SecurityConfig {
     private static final String[] PUBLIC_GET_ENDPOINTS = {
             "/v1/shops",
             "/v1/shops/{shopId:\\d+}",
+            "/v1/shops/{shopId:\\d+}/reviews",
+    };
+
+    private static final String[] PUBLIC_POST_ENDPOINTS = {
             "/v1/shops/{shopId:\\d+}/reviews"
     };
 
@@ -47,6 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception

@@ -29,49 +29,54 @@ public class ReviewService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
-    public ReviewListResponse getMyReviews(String sub, String sort) {
-        List<Review> reviews;
-        if ("rating".equalsIgnoreCase(sort)) { // 평점높은순
-            reviews = reviewRepository.findByWrittenBy_SubOrderByRatingDesc(sub);
-        } else if ("oldest".equalsIgnoreCase(sort)) { // 오래된순
-            reviews = reviewRepository.findByWrittenBy_SubOrderByCreatedAtAsc(sub);
-        } else { // 최신순
-            reviews = reviewRepository.findByWrittenBy_SubOrderByCreatedAtDesc(sub);
-        }
+//    @Transactional(readOnly = true)
+//    public ReviewListResponse getMyReviews(String sub, String sort) {
+//        List<Review> reviews;
+//        if ("rating".equalsIgnoreCase(sort)) { // 평점높은순
+//            reviews = reviewRepository.findByWrittenBy_SubOrderByRatingDesc(sub);
+//        } else if ("oldest".equalsIgnoreCase(sort)) { // 오래된순
+//            reviews = reviewRepository.findByWrittenBy_SubOrderByCreatedAtAsc(sub);
+//        } else { // 최신순
+//            reviews = reviewRepository.findByWrittenBy_SubOrderByCreatedAtDesc(sub);
+//        }
+//
+//        return getReviewListResponse(reviews);
+//    }
 
-        return getReviewListResponse(reviews);
-    }
-
-    public void write(String sub, Long storeId, Double rating, String content, List<String> eatingMenus, List<Keyword> keywords, List<String> photoUrls) {
-        User user = userRepository.findBySub(sub).orElseThrow();
+    // 리뷰 등록
+    public ReviewListResponse.ReviewResponse write(Long storeId, String nickname, Double rating, String content, List<String> photoUrls) {
         Store store = storeRepository.findById(storeId).orElseThrow();
-        List<ReviewPhoto> photos = photoUrls.stream()
-                .map(url -> ReviewPhoto.builder().imageUrl(url).build())
-                .toList();
-        List<ReviewKeyword> keywordList = keywords.stream()
-                .map(keyword -> ReviewKeyword.builder().keyword(keyword).build())
-                .toList();
-        List<ReviewMenu> menus = eatingMenus.stream()
-                .map(menu -> ReviewMenu.builder().menu(menu).build())
-                .toList();
 
         Review review = Review.builder()
                 .rating(rating)
                 .content(content)
                 .store(store)
-                .writtenBy(user)
+                .writtenBy(nickname)
                 .build();
-        review.addReviewPhoto(photos);
-        reviewRepository.save(review);
+
+        if (photoUrls != null) {
+            List<ReviewPhoto> photos = photoUrls.stream()
+                    .map(url -> ReviewPhoto.builder().imageUrl(url).build())
+                    .toList();
+            review.addReviewPhoto(photos);
+        }
+        Review created = reviewRepository.save(review);
+
+        return new ReviewListResponse.ReviewResponse(
+                created.getId(),
+                created.getWrittenBy(),
+                created.getRating(),
+                created.getContent(),
+                reviewPhotoRepository.findByReviewId(created.getId()).stream().map(ReviewPhoto::getImageUrl).toList(),
+                created.getCreatedAt().toInstant(ZoneOffset.UTC));
     }
 
     public void deleteMyReview(String sub, Long reviewId) {
         User user = userRepository.findBySub(sub).orElseThrow();
         Review review = reviewRepository.findById(reviewId).orElseThrow();
-        if (!review.getWrittenBy().getId().equals(user.getId())) {
-            throw new IllegalArgumentException("본인의 리뷰만 삭제할 수 있습니다.");
-        }
+//        if (!review.getWrittenBy().getId().equals(user.getId())) {
+//            throw new IllegalArgumentException("본인의 리뷰만 삭제할 수 있습니다.");
+//        }
         reviewRepository.delete(review);
     }
 
@@ -102,7 +107,7 @@ public class ReviewService {
         List<ReviewListResponse.ReviewResponse> reviewList = reviews.stream()
                 .map(r -> new ReviewListResponse.ReviewResponse(
                         r.getId(),
-                        r.getWrittenBy().getNickname(),
+                        r.getWrittenBy(),
                         r.getRating(),
                         r.getContent(),
                         reviewPhotoRepository.findByReviewId(r.getId()).stream().map(ReviewPhoto::getImageUrl).toList(),

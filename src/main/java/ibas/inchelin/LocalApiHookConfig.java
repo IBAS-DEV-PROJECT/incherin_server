@@ -74,7 +74,7 @@ public class LocalApiHookConfig implements WebMvcConfigurer {
                 .rating(4.5)
                 .content("내 리뷰1")
                 .store(storeRepository.findById(1L).orElseThrow())
-                .writtenBy(userRepository.findById(5L).orElseThrow())
+                .writtenBy("싱그러운 체육학과")
                 .build());
     }
 

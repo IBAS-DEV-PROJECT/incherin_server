@@ -1,20 +1,26 @@
 package ibas.inchelin.web.controller;
 
 import ibas.inchelin.S3Service;
+import ibas.inchelin.domain.review.entity.Review;
 import ibas.inchelin.domain.review.service.ReviewService;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
 import ibas.inchelin.web.dto.review.ReviewWriteRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ReviewController {
@@ -22,19 +28,25 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final S3Service s3Service;
 
-    @GetMapping("/users/me/reviews")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ReviewListResponse> getMyReviews(Authentication authentication, @RequestParam(required = false, defaultValue = "latest") String sort) {
-        return ResponseEntity.ok(reviewService.getMyReviews(authentication.getName(), sort));
-    }
+//    @GetMapping("/users/me/reviews")
+//    @PreAuthorize("hasRole('USER')")
+//    public ResponseEntity<ReviewListResponse> getMyReviews(Authentication authentication, @RequestParam(required = false, defaultValue = "latest") String sort) {
+//        return ResponseEntity.ok(reviewService.getMyReviews(authentication.getName(), sort));
+//    }
 
-    @PostMapping(value = "/users/me/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> writeReview(Authentication authentication, ReviewWriteRequest writeRequest) throws IOException {
-        List<String> photoUrls = s3Service.uploadMany(writeRequest.getPhotos());
-        reviewService.write(authentication.getName(), writeRequest.getStoreId(), writeRequest.getRating(), writeRequest.getContent(),
-                writeRequest.getEatingMenus(), writeRequest.getKeywords(), photoUrls);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    // 리뷰 등록
+    @PostMapping(value = "/v1/shops/{shopId}/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ReviewListResponse.ReviewResponse> writeReview(
+            @ModelAttribute ReviewWriteRequest writeRequest,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @PathVariable Long shopId) throws IOException {
+        List<String> photoUrls;
+
+        photoUrls = images != null && !images.isEmpty() && !images.get(0).isEmpty() ? s3Service.uploadMany(images) : null;
+        ReviewListResponse.ReviewResponse created = reviewService.write(shopId, writeRequest.getNickname(), writeRequest.getRating(), writeRequest.getContent(), photoUrls);
+
+        URI location = URI.create("/v1/shops/" + shopId + "/reviews/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     @DeleteMapping("/users/me/reviews/{reviewId}")

@@ -30,15 +30,13 @@ public class Review extends BaseTimeEntity {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "written_by")
-    private User writtenBy;
+    private String writtenBy;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewPhoto> reviewPhotos = new ArrayList<>();
 
     @Builder
-    public Review(Double rating, String content, Store store, User writtenBy) {
+    public Review(Double rating, String content, Store store, String writtenBy) {
         this.rating = rating;
         this.content = content;
         this.store = store;

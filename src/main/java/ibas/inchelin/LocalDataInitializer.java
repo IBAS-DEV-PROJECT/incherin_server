@@ -75,7 +75,7 @@ public class LocalDataInitializer implements CommandLineRunner {
                 .rating(4.0)
                 .content("리뷰1")
                 .store(storeRepository.findById(1L).orElseThrow())
-                .writtenBy(userRepository.findById(1L).orElseThrow())
+                .writtenBy("싱그러운 체육학과")
                 .build());
     }
 }
