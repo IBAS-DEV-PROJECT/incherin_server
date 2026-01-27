@@ -1,7 +1,5 @@
 package ibas.inchelin.web.dto.store;
 
-import ibas.inchelin.domain.store.Category;
-
 import java.util.List;
 
 public record StoreListResponse(
