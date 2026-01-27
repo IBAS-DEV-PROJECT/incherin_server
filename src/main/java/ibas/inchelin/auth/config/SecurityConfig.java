@@ -34,7 +34,8 @@ public class SecurityConfig {
     // HTTP GET 전용 공개 엔드포인트 목록
     private static final String[] PUBLIC_GET_ENDPOINTS = {
             "/v1/shops",
-            "/v1/shops/{shopId:\\d+}"
+            "/v1/shops/{shopId:\\d+}",
+            "/v1/shops/{shopId:\\d+}/reviews"
     };
 
     @Bean

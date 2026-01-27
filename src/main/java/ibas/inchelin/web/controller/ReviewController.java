@@ -44,9 +44,10 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/reviews/stores/{storeId}")
-    public ResponseEntity<ReviewListResponse> getStoreReviews(@PathVariable Long storeId, @RequestParam(required = false, defaultValue = "latest") String sort) {
-        return ResponseEntity.ok(reviewService.getStoreReviews(storeId, sort));
+    // 리뷰 목록 조회
+    @GetMapping("/v1/shops/{shopId}/reviews")
+    public ResponseEntity<ReviewListResponse> getStoreReviews(@PathVariable Long shopId) {
+        return ResponseEntity.ok(reviewService.getStoreReviews(shopId));
     }
 
     @PostMapping("/users/reviews/{reviewId}/like")

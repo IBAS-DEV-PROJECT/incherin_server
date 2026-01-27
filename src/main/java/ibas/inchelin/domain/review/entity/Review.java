@@ -1,7 +1,6 @@
 package ibas.inchelin.domain.review.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
-import ibas.inchelin.domain.review.VisitType;
 import ibas.inchelin.domain.store.entity.Store;
 import ibas.inchelin.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -27,9 +26,6 @@ public class Review extends BaseTimeEntity {
     @Lob
     private String content;
 
-    @Enumerated(EnumType.STRING)
-    private VisitType visitType;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Store store;
@@ -40,15 +36,6 @@ public class Review extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewPhoto> reviewPhotos = new ArrayList<>();
-
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewKeyword> reviewKeywords = new ArrayList<>();
-
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewMenu> reviewMenus = new ArrayList<>();
-
-    @OneToMany(mappedBy = "review", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<ReviewLike> reviewLikes = new ArrayList<>();
 
     @Builder
     public Review(Double rating, String content, Store store, User writtenBy) {
@@ -62,20 +49,6 @@ public class Review extends BaseTimeEntity {
         for (ReviewPhoto photo : reviewPhoto) {
             photo.setReview(this);
             this.reviewPhotos.add(photo);
-        }
-    }
-
-    public void addReviewKeyword(List<ReviewKeyword> reviewKeyword) {
-        for (ReviewKeyword keyword : reviewKeyword) {
-            keyword.setReview(this);
-            this.reviewKeywords.add(keyword);
-        }
-    }
-
-    public void addReviewMenu(List<ReviewMenu> reviewMenu) {
-        for (ReviewMenu menu : reviewMenu) {
-            menu.setReview(this);
-            this.reviewMenus.add(menu);
         }
     }
 }
