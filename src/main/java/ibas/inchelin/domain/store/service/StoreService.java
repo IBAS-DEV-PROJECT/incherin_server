@@ -28,22 +28,22 @@ public class StoreService {
             // 전체 가게 목록 반환
             storeList = storeRepository.findAll();
         } else if (category.equals("한식")) {
-            storeList = storeRepository.findByCategory(Category.KOREAN);
+            storeList = storeRepository.findByCategoryName(Category.KOREAN);
         } else if (category.equals("중식")) {
-            storeList = storeRepository.findByCategory(Category.CHINESE);
+            storeList = storeRepository.findByCategoryName(Category.CHINESE);
         } else if (category.equals("일식")) {
-            storeList = storeRepository.findByCategory(Category.JAPANESE);
+            storeList = storeRepository.findByCategoryName(Category.JAPANESE);
         } else if (category.equals("양식")) {
-            storeList = storeRepository.findByCategory(Category.WESTERN);
+            storeList = storeRepository.findByCategoryName(Category.WESTERN);
         } else {
-            storeList = storeRepository.findByCategory(Category.OTHER);
+            storeList = storeRepository.findByCategoryName(Category.OTHER);
         }
 
         List<StoreListResponse.StoreListItemResponse> storeListResponse = storeList.stream()
                 .map(s -> new StoreListResponse.StoreListItemResponse(
                         s.getId(),
-                        s.getStoreName(),
-                        s.getCategory().displayName(),
+                        s.getPlaceName(),
+                        s.getCategoryName().displayName(),
                         s.getThumbnail()
                 )).toList();
 
@@ -57,10 +57,10 @@ public class StoreService {
 
         return new StoreInfoResponse(
                 store.getId(),
-                store.getStoreName(),
-                store.getCategory().displayName(),
+                store.getPlaceName(),
+                store.getCategoryName().displayName(),
                 store.getPhone(),
-                store.getAddress()
+                store.getRoadAddressName()
         );
     }
 }

@@ -23,7 +23,7 @@ public class RouletteService {
         List<RouletteListResponse.RouletteItemResponse> rouletteItems = storeList.stream()
             .map(s -> new RouletteListResponse.RouletteItemResponse(
                     s.getId(),
-                    s.getStoreName()
+                    s.getPlaceName()
             )).toList();
 
         return new RouletteListResponse(rouletteItems);

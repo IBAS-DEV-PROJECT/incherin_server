@@ -134,7 +134,7 @@ public class UserService {
                 .map(lls -> new MyListItemListResponse.MyListItemResponse(
                         lls.getId(),
                         lls.getStore().getId(),
-                        lls.getStore().getStoreName()
+                        lls.getStore().getPlaceName()
                 )).toList();
         return new MyListItemListResponse(stores);
     }
