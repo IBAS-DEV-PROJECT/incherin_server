@@ -36,7 +36,8 @@ public class SecurityConfig {
             "/v1/shops",
             "/v1/shops/{shopId:\\d+}",
             "/v1/shops/{shopId:\\d+}/reviews",
-            "/v1/roulette/options"
+            "/v1/roulette/options",
+            "/v1/reviews/nickname"
     };
 
     private static final String[] PUBLIC_POST_ENDPOINTS = {

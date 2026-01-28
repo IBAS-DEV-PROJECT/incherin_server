@@ -3,6 +3,7 @@ package ibas.inchelin.web.controller;
 import ibas.inchelin.S3Service;
 import ibas.inchelin.domain.review.service.ReviewService;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
+import ibas.inchelin.web.dto.review.ReviewNicknameResponse;
 import ibas.inchelin.web.dto.review.ReviewWriteRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -70,5 +71,11 @@ public class ReviewController {
     public ResponseEntity<Void> unlikeReview(Authentication authentication, @PathVariable Long reviewId) {
         reviewService.unlikeReview(authentication.getName(), reviewId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 랜덤 닉네임 조회
+    @GetMapping("/v1/reviews/nickname")
+    public ResponseEntity<ReviewNicknameResponse> getRandomNickname() {
+        return ResponseEntity.ok(reviewService.getRandomNickname());
     }
 }

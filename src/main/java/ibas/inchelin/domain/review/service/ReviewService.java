@@ -8,12 +8,12 @@ import ibas.inchelin.domain.store.repository.StoreRepository;
 import ibas.inchelin.domain.user.entity.User;
 import ibas.inchelin.domain.user.repository.UserRepository;
 import ibas.inchelin.web.dto.review.ReviewListResponse;
+import ibas.inchelin.web.dto.review.ReviewNicknameResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -28,6 +28,8 @@ public class ReviewService {
     private final ReviewMenuRepository reviewMenuRepository;
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
+    private final ReviewNicknameAdjRepository reviewNicknameAdjRepository;
+    private final ReviewNicknameDepRepository reviewNicknameDepRepository;
 
 //    @Transactional(readOnly = true)
 //    public ReviewListResponse getMyReviews(String sub, String sort) {
@@ -114,5 +116,15 @@ public class ReviewService {
                         r.getCreatedAt().toInstant(ZoneOffset.UTC)))
                 .toList();
         return new ReviewListResponse(reviewList);
+    }
+
+    // 랜덤 닉네임 조회
+    @Transactional(readOnly = true)
+    public ReviewNicknameResponse getRandomNickname() {
+        ReviewNicknameAdj randomAdj = reviewNicknameAdjRepository.findRandomOne();
+        ReviewNicknameDep randomDep = reviewNicknameDepRepository.findRandomOne();
+
+        String nickname = randomAdj.getAdjective() + " " + randomDep.getDepartment();
+        return new ReviewNicknameResponse(nickname);
     }
 }
