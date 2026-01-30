@@ -36,5 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-application.yml
-docker-compose.yml
+application-local.yml
+.env
+init.sql
