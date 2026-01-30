@@ -2,7 +2,6 @@ package ibas.inchelin.domain.review.entity;
 
 import ibas.inchelin.domain.BaseTimeEntity;
 import ibas.inchelin.domain.store.entity.Store;
-import ibas.inchelin.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

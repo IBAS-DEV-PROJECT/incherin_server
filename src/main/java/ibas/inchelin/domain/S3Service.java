@@ -1,4 +1,4 @@
-package ibas.inchelin;
+package ibas.inchelin.domain;
 
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;

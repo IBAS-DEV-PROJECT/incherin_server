@@ -3,7 +3,6 @@ package ibas.inchelin.domain.store.entity;
 import ibas.inchelin.domain.store.Category;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,9 +33,4 @@ public class Store {
     private String roadAddressName;
 
     private String phone;
-
-    @Builder
-    public Store(String storeName) {
-        this.placeName = storeName;
-    }
 }
