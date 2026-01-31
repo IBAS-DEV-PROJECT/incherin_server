@@ -23,7 +23,8 @@ public class SecurityConfig {
             "/docs/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/actuator/health"
     };
 
     // HTTP GET 전용 공개 엔드포인트 목록

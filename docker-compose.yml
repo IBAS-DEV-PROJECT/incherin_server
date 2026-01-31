@@ -21,8 +21,8 @@ services:
       - ./mariadb/data:/var/lib/mysql
 
   spring-app:
-    build: .
-    container_name: spring-app
+    image: ${DOCKERHUB_USERNAME}/inchelin:latest
+    container_name: inchelin-app
     environment:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
