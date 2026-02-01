@@ -9,6 +9,8 @@ public record StoreListResponse(
             Long id,
             String name,
             String category,
-            String thumbnail
+            String thumbnail,
+            Double averageRating,
+            Long reviewCount
     ) {}
 }

@@ -1,5 +1,6 @@
 package ibas.inchelin.domain.store.service;
 
+import ibas.inchelin.domain.review.repository.ReviewRepository;
 import ibas.inchelin.domain.store.Category;
 import ibas.inchelin.domain.store.entity.Store;
 import ibas.inchelin.domain.store.repository.StoreRepository;
@@ -18,6 +19,7 @@ import java.util.List;
 public class StoreService {
 
     private final StoreRepository storeRepository;
+    private final ReviewRepository reviewRepository;
 
     // 가게 목록 조회
     public StoreListResponse getStoreList(String category) {
@@ -51,7 +53,9 @@ public class StoreService {
                         s.getId(),
                         s.getPlaceName(),
                         s.getCategoryName().displayName(),
-                        s.getThumbnail()
+                        s.getThumbnail(),
+                        reviewRepository.findAverageRatingByStoreId(s.getId()),
+                        reviewRepository.countByStoreId(s.getId())
                 )).toList();
 
         return new StoreListResponse(storeListResponse);
