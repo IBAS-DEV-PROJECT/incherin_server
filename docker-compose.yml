@@ -7,6 +7,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
+    environment:
+      - TZ=Asia/Seoul
     depends_on:
       - spring-app
 
@@ -14,16 +16,19 @@ services:
     image: mariadb:latest
     container_name: mariadb
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      - TZ=Asia/Seoul
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./mariadb/data:/var/lib/mysql
 
   spring-app:
+#    build: .
     image: ${DOCKERHUB_USERNAME}/inchelin:latest
     container_name: inchelin-app
     environment:
+      - TZ=Asia/Seoul
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_URL=${DB_URL}
