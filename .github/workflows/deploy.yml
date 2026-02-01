@@ -3,6 +3,8 @@ name: Deploy
 on:
   push:
     branches: [ "main" ]
+  paths-ignore:
+    - 'README.md'
 
 jobs:
   deploy:
@@ -105,6 +107,7 @@ jobs:
             docker-compose up -d
             
             echo "Starting health check on /actuator/health..."
+            sleep 10
             
             MAX_RETRIES=3
             COUNT=0
