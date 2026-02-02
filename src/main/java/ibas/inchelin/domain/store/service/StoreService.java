@@ -22,43 +22,13 @@ public class StoreService {
     private final ReviewRepository reviewRepository;
 
     // 가게 목록 조회
-    public StoreListResponse getStoreList(String category) {
-        // 카테고리별 가게 목록 조회
-        List<Store> storeList = new ArrayList<>();
-
-        if (category == null || category.isBlank()) {
-            storeList = storeRepository.findAll(); // 전체 가게 목록 반환
-        } else if (category.equals("korean")) {
-            storeList = storeRepository.findByCategoryName(Category.KOREAN);
-        } else if (category.equals("chinese")) {
-            storeList = storeRepository.findByCategoryName(Category.CHINESE);
-        } else if (category.equals("japanese")) {
-            storeList = storeRepository.findByCategoryName(Category.JAPANESE);
-        } else if (category.equals("western")) {
-            storeList = storeRepository.findByCategoryName(Category.WESTERN);
-        } else if (category.equals("snack")) {
-            storeList = storeRepository.findByCategoryName(Category.SNACK);
-        } else if (category.equals("bar")) {
-            storeList = storeRepository.findByCategoryName(Category.BAR);
-        } else if (category.equals("cafe")) {
-            storeList = storeRepository.findByCategoryName(Category.CAFE);
-        } else if (category.equals("others")) {
-            storeList = storeRepository.findByCategoryName(Category.OTHERS);
-        } else {
-            throw new IllegalArgumentException("유효하지 않은 카테고리입니다.");
+    public StoreListResponse getStoreList(String categoryStr) {
+        Category category = null;
+        if (categoryStr != null && !categoryStr.isBlank()) {
+            category = Category.fromString(categoryStr);
         }
 
-        List<StoreListResponse.StoreListItemResponse> storeListResponse = storeList.stream()
-                .map(s -> new StoreListResponse.StoreListItemResponse(
-                        s.getId(),
-                        s.getPlaceName(),
-                        s.getCategoryName().displayName(),
-                        s.getThumbnail(),
-                        reviewRepository.findAverageRatingByStoreId(s.getId()),
-                        reviewRepository.countByStoreId(s.getId())
-                )).toList();
-
-        return new StoreListResponse(storeListResponse);
+        return new StoreListResponse(storeRepository.findStoreListWithStatistics(category));
     }
 
     // 가게 상세 정보 조회

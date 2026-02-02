@@ -107,7 +107,7 @@ jobs:
             docker-compose up -d
             
             echo "Starting health check on /actuator/health..."
-            sleep 10
+            sleep 20
             
             MAX_RETRIES=3
             COUNT=0
