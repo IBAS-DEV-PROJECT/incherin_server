@@ -55,7 +55,7 @@ public class ReviewService {
     // 리뷰 목록 조회
     @Transactional(readOnly = true)
     public ReviewListResponse getStoreReviews(Long storeId) {
-        List<Review> reviews = reviewRepository.findByStoreIdOrderByCreatedAtDesc(storeId);
+        List<Review> reviews = reviewRepository.findByStoreIdOrderByCreatedAtDescWithPhotos(storeId);
         return getReviewListResponse(reviews);
     }
 
@@ -67,7 +67,7 @@ public class ReviewService {
                         r.getWrittenBy(),
                         r.getRating().intValue(),
                         r.getContent(),
-                        reviewPhotoRepository.findByReviewId(r.getId()).stream().map(ReviewPhoto::getImageUrl).toList(),
+                        r.getReviewPhotos() == null ? List.of() : r.getReviewPhotos().stream().map(ReviewPhoto::getImageUrl).toList(),
                         r.getCreatedAt().toInstant(ZoneOffset.UTC)))
                 .toList();
         return new ReviewListResponse(reviewList);

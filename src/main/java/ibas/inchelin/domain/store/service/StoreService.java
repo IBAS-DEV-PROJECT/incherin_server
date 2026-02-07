@@ -1,6 +1,5 @@
 package ibas.inchelin.domain.store.service;
 
-import ibas.inchelin.domain.review.repository.ReviewRepository;
 import ibas.inchelin.domain.store.Category;
 import ibas.inchelin.domain.store.entity.Store;
 import ibas.inchelin.domain.store.repository.StoreRepository;
@@ -10,16 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class StoreService {
 
     private final StoreRepository storeRepository;
-    private final ReviewRepository reviewRepository;
 
     // 가게 목록 조회
     public StoreListResponse getStoreList(String categoryStr) {
