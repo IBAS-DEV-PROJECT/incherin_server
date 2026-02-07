@@ -7,10 +7,19 @@ services:
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/cert:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
     environment:
       - TZ=Asia/Seoul
     depends_on:
       - spring-app
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./nginx/cert:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
 
   mariadb:
     image: mariadb:latest
