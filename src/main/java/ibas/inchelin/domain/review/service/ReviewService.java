@@ -46,7 +46,7 @@ public class ReviewService {
         return new ReviewListResponse.ReviewResponse(
                 created.getId(),
                 created.getWrittenBy(),
-                created.getRating(),
+                created.getRating().intValue(),
                 created.getContent(),
                 reviewPhotoRepository.findByReviewId(created.getId()).stream().map(ReviewPhoto::getImageUrl).toList(),
                 created.getCreatedAt().toInstant(ZoneOffset.UTC));
@@ -65,7 +65,7 @@ public class ReviewService {
                 .map(r -> new ReviewListResponse.ReviewResponse(
                         r.getId(),
                         r.getWrittenBy(),
-                        r.getRating(),
+                        r.getRating().intValue(),
                         r.getContent(),
                         reviewPhotoRepository.findByReviewId(r.getId()).stream().map(ReviewPhoto::getImageUrl).toList(),
                         r.getCreatedAt().toInstant(ZoneOffset.UTC)))

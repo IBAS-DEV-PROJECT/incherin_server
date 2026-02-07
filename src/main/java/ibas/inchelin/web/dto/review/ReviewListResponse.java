@@ -9,7 +9,7 @@ public record ReviewListResponse (
     public record ReviewResponse(
             Long id,
             String nickname,
-            Double rating,
+            int rating,
             String content,
             List<String> images,
             Instant createdAt
