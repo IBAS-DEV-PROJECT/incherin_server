@@ -26,7 +26,7 @@ public class ReviewService {
 
     // 리뷰 등록
     public ReviewListResponse.ReviewResponse write(Long storeId, String nickname, Double rating, String content, List<String> photoUrls) {
-        Store store = storeRepository.findById(storeId).orElseThrow();
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
         Review review = Review.builder()
                 .rating(rating)
