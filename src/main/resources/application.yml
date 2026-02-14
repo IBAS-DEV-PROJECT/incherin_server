@@ -25,19 +25,18 @@ spring:
         secret-key: ${AWS_SECRET_KEY}
       region:
         static: ap-northeast-2
-      stack:
-        auto: false
       s3:
         bucket: ${S3_BUCKET_NAME}
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
 
 server:
   servlet:
     context-path: ${CONTEXT_PATH}
   forward-headers-strategy: framework
-  tomcat:
-    remoteip:
-      remote-ip-header: x-forwarded-for
-      protocol-header: x-forwarded-proto
 
 springdoc:
   api-docs:
