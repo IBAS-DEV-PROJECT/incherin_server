@@ -7,19 +7,10 @@ services:
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/cert:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
     environment:
       - TZ=Asia/Seoul
     depends_on:
       - spring-app
-
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - ./nginx/cert:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
 
   mariadb:
     image: mariadb:11.8
@@ -35,7 +26,7 @@ services:
       - ./mariadb/data:/var/lib/mysql
 
   spring-app:
-    image: ${DOCKERHUB_USERNAME}/inchelin:latest
+    build: .
     container_name: inchelin-app
     restart: unless-stopped
     environment:

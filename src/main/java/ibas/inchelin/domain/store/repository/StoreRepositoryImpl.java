@@ -35,6 +35,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .leftJoin(review).on(review.store.id.eq(store.id))
                 .where(categoryEq(category))
                 .groupBy(store.id)
+                .orderBy(review.rating.avg().coalesce(0.0).desc())
                 .fetch();
     }
 
