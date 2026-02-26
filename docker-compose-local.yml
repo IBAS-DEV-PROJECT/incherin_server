@@ -28,7 +28,6 @@ services:
   spring-app:
     build: .
     container_name: inchelin-app
-    restart: unless-stopped
     environment:
       - TZ=Asia/Seoul
       - DB_USERNAME=${DB_USERNAME}
