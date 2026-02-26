@@ -2,6 +2,7 @@ package ibas.inchelin.domain.store.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.MathExpressions;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -56,24 +57,24 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                                 .from(review));
 
         // IMDB Weighted Rating: Score = v/(v+m) · R + m/(v+m) · C
-        // round(2)로 부동소수점 정밀도 차이를 제거하여 아키텍처(x86/ARM) 간 정렬 일관성 보장
         NumberExpression<Double> weightedRating =
-                MathExpressions.round(
-                        v.castToNum(Double.class)
-                                .divide(v.castToNum(Double.class).add(M))
-                                .multiply(R)
-                                .add(
-                                        Expressions.asNumber(M)
-                                                .divide(v.castToNum(Double.class).add(M))
-                                                .multiply(C)
-                                ),
-                        2
-                ).castToNum(Double.class);
+                v.castToNum(Double.class)
+                        .divide(v.castToNum(Double.class).add(M))
+                        .multiply(R)
+                        .add(
+                                Expressions.asNumber(M)
+                                        .divide(v.castToNum(Double.class).add(M))
+                                        .multiply(C)
+                        );
 
-        // averageRating도 round(2) 적용하여 아키텍처 간 일관성 확보
         NumberExpression<Double> averageRating =
                 MathExpressions.round(review.rating.avg().coalesce(0.0), 2)
                         .castToNum(Double.class);
+
+        // 리뷰가 있으면 0, 없으면 1 → 오름차순 정렬 시 리뷰 없는 가게가 뒤로
+        NumberExpression<Integer> hasReview = new CaseBuilder()
+                .when(v.gt(0)).then(0)
+                .otherwise(1);
 
         return queryFactory
                 .select(Projections.constructor(StoreListResponse.StoreListItemResponse.class,
@@ -89,7 +90,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .leftJoin(review).on(review.store.id.eq(store.id))
                 .where(categoryEq(category))
                 .groupBy(store.id)
-                .orderBy(weightedRating.desc(), averageRating.desc(), store.id.asc())
+                .orderBy(hasReview.asc(), weightedRating.desc(), averageRating.desc(), v.desc(), store.id.asc())
                 .fetch();
     }
 

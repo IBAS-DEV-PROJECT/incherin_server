@@ -26,8 +26,7 @@ services:
       - ./mariadb/data:/var/lib/mysql
 
   spring-app:
-#    build: .
-    image: ${DOCKERHUB_USERNAME}/inchelin:latest
+    build: .
     container_name: inchelin-app
     ports:
       - "127.0.0.1:8080:8080"
