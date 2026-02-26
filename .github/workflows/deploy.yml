@@ -105,6 +105,7 @@ jobs:
             
             docker-compose pull
             docker-compose up -d
+            docker exec nginx nginx -s reload || true
             
             echo "Starting health check on /actuator/health..."
             sleep 10
