@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -49,7 +48,7 @@ public class ReviewService {
                 created.getRating().intValue(),
                 created.getContent(),
                 reviewPhotoRepository.findByReviewId(created.getId()).stream().map(ReviewPhoto::getImageUrl).toList(),
-                created.getCreatedAt().toInstant(ZoneOffset.UTC));
+                created.getCreatedAt());
     }
 
     // 리뷰 목록 조회
@@ -68,7 +67,7 @@ public class ReviewService {
                         r.getRating().intValue(),
                         r.getContent(),
                         r.getReviewPhotos() == null ? List.of() : r.getReviewPhotos().stream().map(ReviewPhoto::getImageUrl).toList(),
-                        r.getCreatedAt().toInstant(ZoneOffset.UTC)))
+                        r.getCreatedAt()))
                 .toList();
         return new ReviewListResponse(reviewList);
     }

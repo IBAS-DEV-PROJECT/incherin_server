@@ -1,6 +1,6 @@
 package ibas.inchelin.web.dto.review;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record ReviewListResponse (
@@ -12,6 +12,6 @@ public record ReviewListResponse (
             int rating,
             String content,
             List<String> images,
-            Instant createdAt
+            LocalDateTime createdAt
     ) {}
 }
