@@ -7,10 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,8 @@ public class S3Service {
 
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
+
+    private final ExecutorService uploadExecutor = Executors.newFixedThreadPool(5);
 
     public String uploadOne(MultipartFile file) throws IOException {
         String key = "public/" + UUID.randomUUID() + "-" + Objects.requireNonNull(file.getOriginalFilename());
@@ -34,12 +39,20 @@ public class S3Service {
         return String.format("https://%s.s3.ap-northeast-2.amazonaws.com/%s", bucket, key);
     }
 
-    public List<String> uploadMany(List<MultipartFile> files) throws IOException {
-        List<String> urls = new ArrayList<>();
-        for (MultipartFile file : files) {
-            urls.add(uploadOne(file));
-        }
-        return urls;
+    public List<String> uploadMany(List<MultipartFile> files) {
+        List<CompletableFuture<String>> futures = files.stream()
+                .map(file -> CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return uploadOne(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException("파일 업로드 실패: " + file.getOriginalFilename(), e);
+                    }
+                }, uploadExecutor))
+                .toList();
+
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
     }
 
     /**
