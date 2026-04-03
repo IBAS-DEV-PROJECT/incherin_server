@@ -1,0 +1,54 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  cloud:
+    aws:
+      credentials:
+        access-key: test
+        secret-key: test
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+      s3:
+        bucket: test-bucket
+
+  jackson:
+    time-zone: Asia/Seoul
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      resolve-lazily: true
+
+server:
+  servlet:
+    context-path: /api
+  forward-headers-strategy: framework
+
+springdoc:
+  api-docs:
+    enabled: false
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: debug
