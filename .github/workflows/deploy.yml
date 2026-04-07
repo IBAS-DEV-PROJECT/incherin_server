@@ -33,7 +33,7 @@ jobs:
 
       - name: Get GitHub Actions IP
         id: ip
-        uses: haythem/public-ip@v1.3 # 현재 Runner의 공인 IP를 가져옵니다.
+        run: echo "ip=$(curl -s https://checkip.amazonaws.com)" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5.1.1
@@ -48,7 +48,7 @@ jobs:
             --group-id ${{ secrets.AWS_SG_ID }} \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+            --cidr ${{ steps.ip.outputs.ip }}/32
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.7.0
@@ -144,4 +144,4 @@ jobs:
             --group-id ${{ secrets.AWS_SG_ID }} \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+            --cidr ${{ steps.ip.outputs.ip }}/32
